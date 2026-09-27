@@ -1,0 +1,12 @@
+# regenerable / bulky
+ref/f24/
+ae/data/
+ae/fonts_ttf/
+ae_project/
+out/*
+!out/cavalry_exact.mp4
+ae/extract_*.log
+snapshots/
+node_modules/
+.DS_Store
+._*

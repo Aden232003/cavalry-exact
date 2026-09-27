@@ -1,0 +1,328 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
+<template>
+<style>
+@font-face{font-family:"YujiBoku";src:url("fonts/YujiBoku-Regular.woff2") format("woff2");font-display:block;}
+@font-face{font-family:"YujiSyuku";src:url("fonts/YujiSyuku-Regular.woff2") format("woff2");font-display:block;}
+@font-face{font-family:"YujiMai";src:url("fonts/YujiMai-Regular.woff2") format("woff2");font-display:block;}
+@font-face{font-family:"ShipporiB1";src:url("fonts/ShipporiAntiqueB1-Regular.woff2") format("woff2");font-display:block;}
+#root{position:absolute;inset:0;overflow:hidden;background:#EEEFEA;}
+.a6-scene{position:absolute;inset:0;overflow:hidden;visibility:hidden;}
+.a6-a{position:absolute;left:0;top:0;}
+.a6-fill{position:absolute;inset:0;}
+#a6-bg1{background:#F7F8F4;}
+#a6-bg2{background:#F9F9F9;}
+#a6-bg3{background:#ECEAE5 url("assets/paper_light.png") center/cover;}
+.a6-g1{position:absolute;font-family:"YujiBoku";color:#0b0b0b;text-align:center;filter:url(#a6-brush);white-space:nowrap;}
+.a6-dot{position:absolute;width:12px;height:12px;border-radius:50%;background:#0a0a0a;margin:-6px 0 0 -6px;}
+.a6-hd{position:absolute;width:17px;height:17px;background:#050505;margin:-8.5px 0 0 -8.5px;}
+.a6-seg{position:absolute;left:0;top:0;overflow:hidden;transform-origin:0 0;backface-visibility:visible;}
+.a6-face{position:absolute;top:0;width:360px;height:340px;overflow:hidden;}
+.a6-fg{position:absolute;left:0;width:360px;text-align:center;white-space:nowrap;}
+.a6-shade{position:absolute;inset:0;}
+</style>
+<div id="root" data-composition-id="a6" data-width="1080" data-height="1080">
+  <svg width="0" height="0" style="position:absolute"><defs>
+    <filter id="a6-brush" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="3.2" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="1.6" result="b"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4" result="t"/>
+      <feDisplacementMap in="b" in2="t" scale="5" xChannelSelector="R" yChannelSelector="G" result="w"/>
+      <feComponentTransfer in="w" result="a"><feFuncA type="linear" slope="7" intercept="-3"/></feComponentTransfer>
+      <feFlood flood-color="#0a0a0a"/><feComposite operator="in" in2="a"/></filter>
+    <filter id="a6-bkL" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="5" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="2.2" result="b"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" result="t"/>
+      <feDisplacementMap in="b" in2="t" scale="16" xChannelSelector="R" yChannelSelector="G" result="w"/>
+      <feComponentTransfer in="w" result="a"><feFuncA type="linear" slope="7" intercept="-3"/></feComponentTransfer>
+      <feFlood flood-color="#0a0a0a"/><feComposite operator="in" in2="a"/></filter>
+    <filter id="a6-bkM" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="2.6" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="1.3" result="b"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="4" result="t"/>
+      <feDisplacementMap in="b" in2="t" scale="10" xChannelSelector="R" yChannelSelector="G" result="w"/>
+      <feComponentTransfer in="w" result="a"><feFuncA type="linear" slope="7" intercept="-3"/></feComponentTransfer>
+      <feFlood flood-color="#0a0a0a"/><feComposite operator="in" in2="a"/></filter>
+    <filter id="a6-grain1" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="3" seed="11"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.12 0 0 0 -0.047"/></filter>
+    <filter id="a6-grain2" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.22" numOctaves="4" seed="17"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.2 0 0 0 -0.074"/></filter>
+  </defs></svg>
+  <div id="a6-s0" class="a6-scene"></div>
+  <div id="a6-s1" class="a6-scene">
+    <div id="a6-bg1" class="a6-fill"></div><svg class="a6-a" width="1080" height="1080"><rect width="1080" height="1080" filter="url(#a6-grain1)"/></svg>
+    <svg id="a6-sq" class="a6-a" width="1080" height="1080" viewBox="0 0 1080 1080"></svg>
+    <div id="a6-glow" class="a6-fill"></div>
+    <div id="a6-blk" class="a6-fill"></div>
+  </div>
+  <div id="a6-s2" class="a6-scene">
+    <div id="a6-bg2" class="a6-fill"></div><svg class="a6-a" width="1080" height="1080"><rect width="1080" height="1080" filter="url(#a6-grain2)"/></svg>
+    <svg id="a6-grid" class="a6-a" width="1080" height="1080" viewBox="0 0 1080 1080"></svg>
+    <div id="a6-pages" class="a6-fill"></div>
+    <div id="a6-card" class="a6-a" style="width:360px;height:338px;background:#DD0510;transform-origin:0 0;">
+      <div class="a6-g1" style="left:10px;width:360px;top:22px;font-size:272px;line-height:290px;filter:url(#a6-bkL);">永</div>
+    </div>
+    <div id="a6-hd2" class="a6-fill"></div>
+  </div>
+  <div id="a6-s3" class="a6-scene">
+    <div id="a6-bg3" class="a6-fill"></div>
+    <svg id="a6-f3" class="a6-a" width="1080" height="1080" viewBox="0 0 1080 1080"></svg>
+    <div id="a6-red3" class="a6-a" style="background:#E90600;overflow:hidden;">
+      <div id="a6-red3g" class="a6-g1" style="left:0;top:0;filter:url(#a6-bkM);">永</div>
+    </div>
+    <div id="a6-hd3" class="a6-fill"></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>(function(){
+const K=2, F0=651, DUR=2.209, NS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+function el(tag,cls,parent,css){const e=document.createElement(tag);if(cls)e.className=cls;if(css)e.style.cssText=css;if(parent)parent.appendChild(e);return e;}
+function sv(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function hash(a,b,c){let h=(a*73856093)^(b*19349663)^(c*83492791);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return ((h>>>0)%10000)/10000;}
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+/* ---------------- S0 : frame 651 (tail of the dark glyph grid) ---------------- */
+(function(){
+  const s0=$("a6-s0"); s0.style.background="#10171F";
+  const G={"0,0":"黄","0,1":"黄","0,2":"黄","0,7":"師","0,8":"五","0,9":"黄","0,11":"黄",
+  "1,0":"令","1,1":"令","1,3":"仙","1,8":"化","1,9":"之","1,10":"令","1,11":"令",
+  "2,0":"令","2,2":"閣","2,3":"清","2,9":"選","2,10":"之","2,11":"令","3,10":"仙",
+  "4,0":"教","4,8":"皈","5,0":"為","5,1":"内","7,0":"教","7,11":"教","8,0":"掌","8,10":"選",
+  "9,1":"三","9,6":"皈","9,8":"玉","9,10":"三","9,11":"雷","10,0":"五","10,1":"五","10,3":"閣","10,10":"雷","10,11":"雷",
+  "11,0":"判","11,1":"判","11,2":"判","11,3":"師","11,5":"化","11,7":"為","11,8":"師","11,9":"五","11,10":"五","11,11":"五"};
+  const bgc=["#0C4F8E","#0B2C58","#0D1D33"], cc=["#2C7DC2","#1D5790","#163A60"];
+  for(let r=0;r<12;r++)for(let c=0;c<12;c++){
+    const ring=Math.min(r,c,11-r,11-c);
+    if(ring>2)continue;
+    const d=el("div","",s0,`position:absolute;left:${c*90}px;top:${r*90}px;width:90px;height:90px;background:${bgc[ring]};box-shadow:inset 0 0 0 1px rgba(80,180,235,${ring==0?.7:.35});`);
+    el("div","",d,`position:absolute;left:5px;top:5px;width:80px;height:80px;border-radius:50%;border:2px solid ${cc[ring]};box-sizing:border-box;`);
+  }
+  for(const k in G){const [r,c]=k.split(",").map(Number);
+    el("div","",s0,`position:absolute;left:${c*90}px;top:${r*90+4}px;width:90px;height:90px;font:74px/84px "YujiSyuku";color:#F2F4F6;text-align:center;`).textContent=G[k];}
+  el("div","",s0,"position:absolute;left:438px;top:438px;width:204px;height:204px;border:4px solid #2FA3E6;box-sizing:border-box;");
+  el("div","",s0,"position:absolute;left:538px;top:438px;width:4px;height:204px;background:#2FA3E6;");
+  el("div","",s0,"position:absolute;left:438px;top:538px;width:204px;height:4px;background:#2FA3E6;");
+})();
+
+/* ---------------- S1 : 2x2 glyph block (frames 652-668) ---------------- */
+const EDGES={652:"h00b5h10g8h20b6h30g9h40b7h50g6h90g8ha0b5hb0g8h01b9h11g9h21b9h31g9h41b9h51g9h71g9h91g8ha1b9hb1g9h02b9h12g8h22b6h42b6h72g9ha2b6hb2g9h03b9hb3g9h04b7h14g7hb4g8h15g9hb5g6h06b6hb6g9h07b6hb7g6hb8g6h09b6hb9g9h0ab9h1ag7h2ab7haab6hbag9h0bb9h1bg9h2bb9h3bg9h4bb7h8bb4h9bg9habb9hbbg9h0cb7h1cg7h2cb6h3cg8h4cb5h8cb6h9cg7hacb6hbcg7v00b6v10b3v20b7v30b5v40b4v50b5v60g9v90g9va0b6vb0b4vc0g8v01b6v11b4v21b7v31b6v41b6v51b6v71g8v81g7va1b7vb1b4vc1g7v02b5v12b5vb2g8vc2g7v03b5v13b6vb3g7vc3g8v14g8v24g8vb5g7vc5g8v06b6v16b7vb6g7vc6g7va8g7vb8g8vc8g7v09b7v19b7vb9g7vc9g6v0ab7v1ab4v2ab6v3ab5vaab6vbab4vcag7v0bb7v1bb3v2bb6v3bb4v4bb6v5bb6v8bb5v9bb4vabb7vbbb4vcbg8",653:"h00b5h10g7h30g8h50g6h90g8ha0b5hb0g8h01b9h11g9h21b7h31g8h41b7h51g9h71g9h91g8ha1b9hb1g9h02b6h12g8h22b6h42b6h72g9ha2b6hb2g9h03b7hb3g9h04b7h14g7hb4g8h15g9hb5g6h06b6hb6g9h07b6hb7g6hb8g6h09b6hb9g8h0ab9haab6hbag9h0bb9h1bg8h2bb7h3bg9h4bb7h8bb4habb9hbbg9h0cb7h1cg7h2cb6h3cg8h4cb5h8cb6hacb6hbcg7v00b6v10b3v20g8v30g9v40g7v50g8v60g9v90g9va0b6vb0b4vc0g8v01b6v11b4v21b7v31b6v41b6v51b6v71g8v81g7va1b7vb1b3vc1g7vb2g8vc2g7v03b6v13b6vb3g7vc3g8v14g8v24g8vb5g7vc5g8v06b6v16b7vb6g7vc6g7va8g7vb8g8vc8g7v09b7v19b8v0ab7v1ab5vaab6vbab4vcag7v0bb7v1bb3v2bb6v3bb4v4bb6v5bb6v8bb5v9bb4vabb7vbbb4vcbg8",654:"h00b5h10g9h30g7ha0b5hb0g9h01b9h11g9h21b8h31g9h41b7h71g8ha1b9hb1g8h02b6h12g8h22b6h42b6h72g9ha2b6hb2g7h03b7hb3g9h04b7h14g7hb4g8h15g8hb5g8h06b6hb6g9h07b6hb7g9hb8g7h09b6hb9g7h0ab9hbag6h0bb9h1bg7h2bb7h4bb7habb7hbbg9h0cb6h1cg6h2cb6h4cb5hacb6hbcg8v00b6v10b3v20g8v30g9v40g8va0b6vb0b4vc0g7v01b6v11b4v21b7v31b6v41b6v51b7v71g7v81g7va1b6vb1b5vb2g7vc2g6v03b6v13b7vb3g8vc3g7v14g6v24g7vb5g6vc5g6v06b7v16b7vb6g7vc6g8va8g8vb8g8vc8g7v09b7v19b7v0ab7v1ab7vbag9vcag8v0bb7v1bb3v2bb6v3bb6v4bb6v5bb7vabb7vbbb4vcbg7",655:"h00b5h10g9h30g7ha0b5hb0g9h01b9h11g9h21b8h31g9h41b7h71g8ha1b9hb1g8h02b6h22b6h42b6h72g9ha2b6h03b7hb3g6h04b7hb4g8hb5g8h06b6hb6g9h07b6hb7g9hb8g7h09b6hb9g7h0ab9hbag6h0bb9h1bg7h2bb7h4bb7habb7hbbg9h0cb6h1cg6h2cb6h4cb5hacb6hbcg8v00b6v10b3v20g8v30g9v40g8va0b6vb0b4vc0g7v01b6v11b6v21b6v31b6v41b6v51b7v71g7v81g7va1b6vb1b5v03b6v13b7vb3g8vc3g7vb5g7vc5g6v06b7v16b7vb6g7vc6g8va8g8vb8g8vc8g7v09b7v19b7v0ab7v1ab7vbag9vcag8v0bb7v1bb3v2bb6v3bb6v4bb6v5bb7vabb7vbbb4vcbg7",656:"h00b5h10g9h30g7ha0b5hb0g9h01b9h11g9h21b8h31g9h41b7h71g8ha1b9hb1g8h02b6h22b6h42b6h72g9ha2b6h03b7h04b7h06b6hb6g6h07b6hb7g9h09b6h0ab9hbag6h0bb9h1bg7h4bb7habb7hbbg9h0cb6h1cg6h4cb5hacb6hbcg8v00b6v10b3v20g8v30g9v40g8va0b6vb0b4vc0g7v01b6v11b6v21b6v31b6v41b6v51b7v71g7v81g7va1b6vb1b5v03b6v13b7v06b7v16b7vb6g7vc6g8v09b7v19b7v0ab7v1ab7vbag9vcag8v0bb7v1bb3v2bg8v4bb6v5bb7vabb7vbbb4vcbg7",657:"h00b6h10g9h30g7ha0b5hb0g9h01b9h11g9h21b8h31g9h41b7h71g8ha1b7hb1g8h02b6h22b6h42b6h72g9h03b7h04b7h06b6h07b6h09b6h0ab7hbag6h1bg7h4bb7habb7hbbg9h1cg6h4cb5hacb6v00b6v10b3v20g8v30g9v40g8va0b6vb0b4vc0g7v01b6v11b6v21b6v31b6v41b6v51b7v71g7v81g7v03b6v13b7v06b7v16b7v09b7v19b7vbag9vcag8v1bg9v2bg8v4bb6v5bb7vabb7vbbb4",658:"h00b5h10g9h30g9ha0b6hb0g9h01b9h11g9h21b7h31g7h41b7h71g9ha1b7hb1g6h02b6h22b6h42b6h72g8h06b6h07b7h09b6h0ab6hbag8h1bg9h4bb7habb7hbbg9h1cg8h4cb5hacb7v00b6v10b3v20g8v30g8v40g8va0b5vb0b4vc0g7v01b6v11b6v21b6v31b6v41b6v51b7v71g7v81g8v06b7v16b7v09b7v19b8vbag8vcag8v1bg8v2bg9v4bb6v5bb7vabb7vbbb4",659:"h00b6h10g9h30g9ha0b6h01b9h11g9h21b7h31g7h41b7h71g9ha1b7h02b6h22b6h42b6h72g8h06b6h07b7h09b6h0ab6hbag8h1bg9h4bb7hbbg9h1cg8h4cb5v00b6v10b3v20g8v30g8v40g8va0b5vb0b6v01b6v11b6v21b6v31b6v41b6v51b7v71g7v81g8v06b7v16b7v09b7v19b8vbag8vcag8v1bg8v2bg9v4bb6v5bb7",660:"h00b6h10g9h30g9ha0b6h01b9h11g9h21b7h31g7h41b7h71g9ha1b7h02b6h22b6h42b6h72g8h09b6h0ab6hbag8h1bg9h4bb7hbbg9h1cg8h4cb5v00b6v10b3v20g8v30g8v40g8va0b5vb0b6v01b6v11b6v21b6v31b6v41b6v51b7v71g7v81g8v09b7v19b8vbag8vcag8v1bg8v2bg9v4bb6v5bb7",661:"h00b5h10g9h30g9ha0b6h01b9h11g9h21b7h31g7h71g9ha1b7h02b6h22b6h72g8h09b6h0ab6hbag8h1bg9h4bb7hbbg9h1cg8h4cb5v00b6v10b3v20g8v30g8v40g8va0b5vb0b6v01b6v11b6v21b6v31b6v71g7v81g8v09b7v19b8vbag8vcag8v1bg8v2bg9v4bb6v5bb7",662:"h00b6h10g8h30g8ha0b6h01b9h11g8h21b8h31g9h71g9ha1b7h02b6h22b6h72g7h09b6h0ab6h1bg8h4bb7h1cg8h4cb5v00b6v10b3v20g9v30g9v40g6va0b5vb0b7v01b6v11b6v21b6v31b6v71g7v81g8v09b7v19b7v1bg9v2bg7v4bb6v5bb7",663:"h00b6h10g8h30g8ha0b6h01b9h11g8h21b8h31g9h71g9ha1b7h02b6h22b6h72g7h09b6h0ab6h1bg8h1cg8v00b6v10b3v20g9v30g9v40g6va0b5vb0b7v01b6v11b6v21b6v31b6v71g7v81g8v09b7v19b7v1bg9v2bg7",664:"h00b6h10g8h30g8ha0b6h01b9h11g8h21b8h31g9h71g8ha1b7h02b6h22b6h72g7h09b6h0ab6h1bg8h1cg8v00b6v10b3v20g9v30g9v40g6va0b5vb0b7v01b6v11b6v21b6v31b6v71g7v81g8v09b7v19b7v1bg9v2bg7",665:"h00b6h10g8h30g8ha0b6h01b9h11g8h21b8h31g9ha1b7h02b6h22b6h09b6h0ab6h1bg8h1cg8v00b6v10b3v20g9v30g9v40g6va0b5vb0b7v01b6v11b6v21b6v31b6v09b7v19b7v1bg9v2bg7",666:"h00b5h10g8h30g9ha0b6h01b9h11g8h21b8h31g9ha1b7h02b6h22b6h09b7h0ab6h1bg9h1cg7v00b6v10b3v20g8v30g8v40g6va0b5vb0b7v01b6v11b6v21b6v31b6v09b7v19b7v1bg9v2bg8",667:"h00b5h10g8h30g9ha0b6h01b9h11g8h21b8h31g9ha1b7h02b6h22b6h09b7h0ab6h1bg9h1cg7v00b6v10b3v20g8v30g8v40g6va0b5vb0b7v01b6v11b6v21b6v31b6v09b7v19b7v1bg9v2bg8",668:"h00b5h10g8h30g9ha0b6h01b9h11g8h21b8h31g9ha1b7h02b6h22b6h09b7h0ab6h1bg9h1cg7v00b6v10b3v20g8v30g8v40g6va0b5vb0b7v01b6v11b6v21b6v31b6v09b7v19b7v1bg9v2bg8"};
+const sqG={};
+(function(){
+  const svg=$("a6-sq");
+  for(const f in EDGES){
+    const g=sv("g",{style:"display:none"},svg); sqG[f]=g; const s=EDGES[f];
+    for(let p=0;p<s.length;p+=5){
+      const d=s[p], i=parseInt(s[p+1],16), j=parseInt(s[p+2],16), col=s[p+3], a=(+s[p+4])/9;
+      let x1,y1,x2,y2;
+      if(d==="h"){x1=90*i;x2=90*i+90;y1=y2=Math.min(90*j,1078);}else{y1=90*j;y2=90*j+90;x1=x2=Math.min(90*i,1078);}
+      sv("line",{x1,y1,x2,y2,stroke:col==="b"?"rgb(96,168,206)":"rgb(196,197,190)","stroke-width":col==="b"?3.6:3,"stroke-opacity":(col==="b"?a*.95:a*.9).toFixed(2),"stroke-linecap":"square"},g);
+    }
+  }
+})();
+const S1={ // n: [S, off] in 540 units
+ 652:[130,32.5],653:[146,36.5],654:[152,38],655:[156,39],656:[158,39.5],657:[160,40],658:[162,40.5],659:[164,41],660:[165,41.25],
+ 661:[166,41.5],662:[168,42],663:[168,42],664:[168,42],665:[168,42],666:[168,42],667:[166,35.5],668:[167,25.5]};
+const S1G={652:"德福道長",653:"德福急長",654:"德道急長",655:"福道急長",656:"福道急存",657:"福道長存",658:"福道長存",659:"福急長存",660:"福急長存"};
+const S1I={652:[0,0],653:[.5,0],654:[.8,0],655:[1,0],656:[1,.15],657:[1,.4],658:[1,.55],659:[1,.8],660:[1,.85],661:[1,.9],662:[1,.9],663:[1,.9],664:[1,.9],665:[1,.9],666:[1,.85],667:[.55,.45],668:[0,0]};
+const glowC=[]; const blk=$("a6-blk");
+for(let j=0;j<6;j++)for(let i=0;i<6;i++)glowC.push(el("div","",$("a6-glow"),"position:absolute;background:rgb(84,178,236);"));
+const bOuter=el("div","",blk,"position:absolute;border:3px solid #3AAFD6;box-sizing:border-box;");
+const bV=[0,1,2,3].map(()=>el("div","",blk,"position:absolute;width:3px;background:#3AAFD6;"));
+const bH=el("div","",blk,"position:absolute;height:3px;background:#3AAFD6;");
+const bC=[0,1,2,3].map(()=>el("div","",blk,"position:absolute;border:3px solid #7FC9E2;box-sizing:border-box;"));
+const gly=[0,1,2,3].map(()=>el("div","a6-g1",blk,"font-size:140px;line-height:160px;width:200px;"));
+const dots=[0,1,2,3,4,5,6,7].map(()=>el("div","a6-dot",blk,""));
+function box(e,x,y,w,h){e.style.left=x+"px";e.style.top=y+"px";if(w!=null)e.style.width=w+"px";if(h!=null)e.style.height=h+"px";}
+function render1(n){
+  for(const f in sqG)sqG[f].style.display=(+f===n)?"":"none";
+  const [S5,o5]=S1[n]; const S=S5*K, off=o5*K, c=S/2, q=S/4;
+  const L=540-off-c/2, R=540+off+c/2, T=540-c, B=540+c;
+  box(bOuter,L-1.5,T-1.5,R-L+3,B-T+3);
+  const vx=[540-off+c/2,540+off-c/2];
+  box(bV[0],vx[0]-1.5,T,null,S); box(bV[1],vx[1]-1.5,T,null,S);
+  bV[2].style.display=bV[3].style.display="none";
+  box(bH,L,540-1.5,R-L,null);
+  const cq=[[L-q,T-q],[R,T-q],[L-q,B],[R,B]];
+  cq.forEach((p,k)=>{box(bC[k],p[0],p[1],q,q);bC[k].style.display=n>=653?"":"none";});
+  // glow
+  const [Ii,Io]=S1I[n]; const gw=(R-L+2*q)/6, gh=(B-T+2*q)/6;
+  for(let j=0;j<6;j++)for(let i=0;i<6;i++){
+    const inner=(i>0&&i<5&&j>0&&j<5), I=inner?Ii:Io;
+    const corner=(i==0||i==5)&&(j==0||j==5);
+    const h=hash(n,i,j), stripe=((i+j)%2?0.75:1)*((i==2||i==3)?1.15:0.85);
+    const a=corner?0:I*(inner?(0.08+0.55*h):(0.08+0.32*h))*stripe;
+    const e=glowC[j*6+i]; box(e,L-q+i*gw,T-q+j*gh,gw+0.5,gh+0.5); e.style.opacity=a.toFixed(3);
+  }
+  const g=S1G[n]||"道急長存";
+  const cx=[540-off,540+off], cy=[540-c/2,540+c/2];
+  for(let k=0;k<4;k++){const e=gly[k];e.textContent=g[k];box(e,cx[k%2]-100,cy[k>>1]-84,null,null);}
+  // handle dots on TL and BR cells
+  const cells=[[cx[0]-c/2,cy[0]-c/2],[cx[1]-c/2,cy[1]-c/2]]; const ins=6;
+  let di=0; for(const [x0,y0] of cells){ for(const [dx,dy] of [[ins,ins],[c-ins,ins],[ins,c-ins],[c-ins,c-ins]]){box(dots[di],x0+dx,y0+dy);dots[di].style.display=n>=654?"":"none";di++;} }
+}
+
+/* ---------------- S2 : 3D open book page flips (frames 669-692) + red cover card (693-694) ---------------- */
+const BB={669:[80,460],670:[86,454],671:[90,450],672:[91,449],673:[93,447],674:[94,446],675:[95,445],676:[96,445],677:[97,445],678:[97,444],
+ 679:[97,444],680:[98,443],681:[98,443],682:[98,443],683:[99,442],684:[99,442],685:[99,441],686:[99,441],687:[99,441],688:[100,440],
+ 689:[101,439],690:[105,435],691:[112,428],692:[125,415],693:[179,361],694:[179,361]};
+const SPINE={691:247,692:262};
+const spineAt=n=>SPINE[n]||270;
+const bbAt=n=>BB[n]||BB[Math.max(669,Math.min(694,n))];
+// ---- faces (360x340, as seen) ----
+const WHITE="#E6EDEC", BLACK="#0A0A0A", RED="#D4000A";
+const FACES={
+ W不:{bg:WHITE,g:[["不","YujiSyuku",300,"#111",176,172]]},
+ W畱:{bg:WHITE,g:[["畱","ShipporiB1",230,WHITE,180,168,"-webkit-text-stroke:8px #151515;"]]},
+ W絲:{bg:WHITE,g:[["絲","YujiSyuku",300,"#121212",150,170]]},
+ W危:{bg:WHITE,g:[["危","YujiSyuku",300,"#121212",165,165]]},
+ W永f:{bg:WHITE,g:[["一","YujiSyuku",110,"#121212",30,175]]},
+ W誌:{bg:WHITE,g:[["誌","ShipporiB1",230,WHITE,175,168,"-webkit-text-stroke:8px #151515;"]]},
+ B絲:{bg:BLACK,g:[["絲","YujiSyuku",300,"#E4E6E4",150,175]]},
+ B永:{bg:BLACK,g:[["不","YujiSyuku",300,"#E6E8E6",175,170]]},
+ B誌:{bg:BLACK,g:[["誌","YujiSyuku",310,"#E4E6E4",200,165]]},
+ B讀:{bg:BLACK,g:[["讀","YujiSyuku",290,"#E4E6E4",150,170]]},
+ B念:{bg:BLACK,g:[["念","YujiSyuku",280,"#E4E6E4",180,140]]},
+ B永2:{bg:BLACK,g:[["永","YujiSyuku",320,"#E4E6E4",150,190]]},
+ B:{bg:BLACK,g:[]}, R:{bg:RED,g:[]},
+ R永:{bg:RED,g:[["永","YujiBoku",280,"#0a0a0a",180,170]]}
+};
+// ---- pages: kf n -> [ox, ot, bend, ob?] (540 units) or "FL"/"FR"; faces: [[fromN, side, faceKey],...]
+const PAGES=[
+ {id:"P0",i:-1,kf:{669:"FR"},faces:[[0,"B","B"],[0,"A","B"]]},
+ {id:"P1",i:0,kf:{669:[325,55,-.7],670:[336,56,-.7],671:[343,59,-.7],672:[348,60,-.7],673:[352,63,-.7],674:[357,58,-.7],675:[360,60,-.65],676:[365,68,-.6],677:[377,76,-.5],678:[390,80,-.5],679:[397,88,-.5],680:[415,109,-.4],681:[435,142,-.3],682:"FR"},
+   faces:[[0,"B","B絲"],[0,"A","B"]]},
+ {id:"P2",i:1,kf:{669:[80,172,.2],670:[140,86,.2],671:[206,59,.45],672:[252,55,.6],673:[302,51,-.4],674:[336,55,-.55],675:[335,72,-.5],676:[340,74,-.5],677:[347,78,-.5],678:[352,80,-.5],679:[356,82,-.5],680:[361,80,-.5],681:[368,76,-.5],682:[373,78,-.45],683:[381,84,-.4],684:[394,100,-.35],685:[414,110,-.3],686:[427,145,-.25],687:"FR"},
+   faces:[[0,"A","W不"],[670,"A","W畱"],[0,"B","W絲"],[679,"B","W危"]]},
+ {id:"P3",i:2,kf:{669:"FL",670:[90,148,.5],671:[97,130,.6],672:[111,122,.65],673:[117,113,.7],674:[123,105,.7],675:[131,101,.7],676:[136,97,.7],677:[139,92,.7],678:[144,88,.7],679:[147,88,.7],680:[151,84,.7],681:[156,80,.7],682:[163,76,.7],683:[172,67,.72],684:[186,63,.74],685:[206,59,.76],686:[233,51,.8],687:[302,51,-.5],688:[336,63,-.55],689:[414,113,-.4],690:[430,160,-.2],691:"FR"},
+   faces:[[0,"A","B永"],[683,"A","B誌"],[0,"B","B讀"]]},
+ {id:"P4",i:3,kf:{669:"FL",670:[86,174,.3,346],671:[90,160,.4,346],672:[94,135,.5,346],673:[97,117,.6,345],674:[100,115,.6,344],675:[106,113,.6,343],676:[108,120,.6,341],677:[110,128,.6,338],678:[111,127,.6,334],679:[112,126,.6,330],680:[115,122,.6,325],681:[117,118,.6,320],682:[122,112,.6,313],683:[127,105,.65,305],684:[136,97,.65],685:[147,88,.7],686:[167,76,.7],687:[193,59,.75],688:[240,51,.8],689:[318,55,-.5],690:[405,115,-.3],691:[418,170,-.1],692:"FR"},
+   faces:[[0,"A","W永f"],[687,"A","W畱"],[0,"B","W誌"],[690,"B","W畱"]]},
+ {id:"P6",i:4,kf:{669:"FL",683:[100,165,.3,338],684:[100,160,.35,330],685:[102,147,.4,285],686:[113,134,.5,272],687:[122,113,.6,270],688:[140,93,.7,255],689:[168,68,.75,245],690:[222,51,.8,250],691:[305,60,-.4],692:[395,130,-.3]},
+   faces:[[0,"A","B念"],[0,"B","B永2"]]},
+ {id:"P7",i:5,kf:{669:"FL",689:[95,157,.5,330],690:[98,130,.8,305],691:[127,84,.9,255],692:[240,52,.92,300]},
+   faces:[[0,"A","R"],[0,"B","R永"]]}
+];
+const NSEG=10, SW=360/NSEG;
+const pagesEl=$("a6-pages");
+function buildFace(key){const F=FACES[key];const d=el("div","a6-face",null,`background:${F.bg};`);
+  for(const [ch,font,size,col,x,y,extra] of F.g){el("div","a6-fg",d,`top:${y-size/2}px;left:${x-180}px;font-family:"${font}";font-size:${size}px;line-height:${size}px;color:${col};${extra||""}`).textContent=ch;}
+  return d;}
+for(const P of PAGES){
+  P.el=el("div","",pagesEl,"position:absolute;left:0;top:0;width:1080px;height:1080px;");
+  P.segs=[];
+  for(let k=0;k<NSEG;k++){
+    const s=el("div","a6-seg",P.el,`width:${SW}px;height:340px;`);
+    const fv=P.faces.map(([from,side,key])=>{const f=buildFace(key);f.style.left=(side==="A"?-(360-(k+1)*SW):-(k*SW))+"px";s.appendChild(f);return {from,side,e:f};});
+    const sh=el("div","a6-shade",s,"");
+    P.segs.push({e:s,fv,sh});
+  }
+  P.dark=P.faces.some(f=>FACES[f[2]].bg===BLACK)&&!P.faces.some(f=>FACES[f[2]].bg===WHITE);
+  P.isRed=P.id==="P7";
+}
+function kfAt(P,n){let best=null;for(const k in P.kf){if(+k<=n&&(best===null||+k>best))best=+k;}return best===null?null:P.kf[best];}
+function resolve(v,n){
+  const [bl,br]=bbAt(n), xs=spineAt(n);
+  if(v==="FL")return [bl,186,0,356];
+  if(v==="FR")return [br,186,0,356];
+  const [ox,ot,b,ob]=v;
+  const left=ox<xs;
+  return [ox,ot,b,ob!=null?ob:(356-(left?.85:.55)*(186-ot))];
+}
+function quad(w,h,p){ // rect(0,0,w,h) -> quad TL,TR,BR,BL
+  const [x0,y0,x1,y1,x2,y2,x3,y3]=p;
+  const sx=x0-x1+x2-x3, sy=y0-y1+y2-y3;
+  let a,b,c,d,e,f,g=0,hh=0;
+  if(Math.abs(sx)<1e-6&&Math.abs(sy)<1e-6){a=x1-x0;b=x2-x1;c=x0;d=y1-y0;e=y2-y1;f=y0;}
+  else{const dx1=x1-x2,dx2=x3-x2,dy1=y1-y2,dy2=y3-y2;const den=dx1*dy2-dx2*dy1;
+    g=(sx*dy2-dx2*sy)/den;hh=(dx1*sy-sx*dy1)/den;a=x1-x0+g*x1;b=x3-x0+hh*x3;c=x0;d=y1-y0+g*y1;e=y3-y0+hh*y3;f=y0;}
+  return `matrix3d(${a/w},${d/w},0,${g/w},${b/h},${e/h},0,${hh/h},0,0,1,0,${c},${f},0,1)`;
+}
+function renderPage(P,n,fr){
+  let v0=kfAt(P,n); if(v0===null){P.el.style.display="none";return;}
+  P.el.style.display="";
+  let s=resolve(v0,n);
+  const v1=kfAt(P,n+1);
+  if(fr>0.001&&v1!==null&&n+1<=692){const s1=resolve(v1,n+1);s=s.map((x,i)=>lerp(x,s1[i],fr));}
+  const xs=lerp(spineAt(n),spineAt(Math.min(n+1,692)),fr>0.001?fr:0)*K;
+  const [bl,br]=bbAt(n);
+  const OX=s[0]*K, OT=s[1]*K, bnd=s[2], OB=s[3]*K, T0=372, B0=712;
+  const wA=(bnd+1)/2, cX=lerp(OX,xs,wA), cT=lerp(T0,OT,wA), cB=lerp(B0,OB,wA);
+  const side=OX<xs?"A":"B";
+  const flatW=Math.max(20,(side==="A"?xs-bl*K:br*K-xs));
+  const bz=(t,p0,c,p1)=>(1-t)*(1-t)*p0+2*t*(1-t)*c+t*t*p1;
+  const dist=Math.abs(OX-xs);
+  P.el.style.zIndex=String(Math.round((1100-dist)*10+(side==="A"?(10-P.i):P.i)));
+  for(let k=0;k<NSEG;k++){
+    const t0=k/NSEG,t1=(k+1)/NSEG;
+    let X0=bz(t0,xs,cX,OX),X1=bz(t1,xs,cX,OX);
+    const Ta=bz(t0,T0,cT,OT),Tb=bz(t1,T0,cT,OT),Ba=bz(t0,B0,cB,OB),Bb=bz(t1,B0,cB,OB);
+    if(Math.abs(X1-X0)<0.25)X1=X0+(side==="A"?-0.25:0.25);
+    const S=P.segs[k];
+    const q=side==="A"?[X1,Tb,X0,Ta,X0,Ba,X1,Bb]:[X0,Ta,X1,Tb,X1,Bb,X0,Ba];
+    // tiny overlap to hide seams
+    if(side==="A"){q[0]-=0.6;q[6]-=0.6;}else{q[2]+=0.6;q[4]+=0.6;}
+    S.e.style.transform=quad(SW,340,q);
+    let act=null;for(const f of S.fv){if(f.side===side&&f.from<=n&&(act===null||f.from>=act.from))act=f;}
+    for(const f of S.fv)f.e.style.display=(f===act)?"":"none";
+    const r=Math.min(1,Math.abs(X1-X0)/(flatW/NSEG));
+    const lift=Math.min(1,dist<1?0:(1-Math.abs(OX-xs)/flatW)+Math.abs(OT-372)/200);
+    const bg=act?FACES[P.faces[S.fv.indexOf(act)][2]].bg:BLACK;
+    if(bg===BLACK){S.sh.style.background="rgb(58,46,46)";S.sh.style.opacity=(0.55*(1-r)*Math.min(1,lift*1.5)).toFixed(3);}
+    else if(bg===WHITE){S.sh.style.background="#000";S.sh.style.opacity=(0.03+0.2*(1-r)).toFixed(3);}
+    else {S.sh.style.background="#000";S.sh.style.opacity=(0.12*(1-r)).toFixed(3);}
+  }
+}
+// grid + handles
+const grid=$("a6-grid");
+const gV=[0,1,2].map(()=>sv("line",{y1:0,y2:1080,stroke:"#C6C6C6","stroke-width":3},grid));
+for(let k=0;k<7;k++){const y=(16.5+84.5*k)*K;sv("line",{x1:0,x2:1080,y1:y,y2:y,stroke:"#C6C6C6","stroke-width":3},grid);}
+const gD=[0,1,2,3].map(()=>sv("rect",{width:12,height:12,fill:"#B9B9B9"},grid));
+const hd2=[0,1,2,3].map(()=>el("div","a6-hd",$("a6-hd2"),""));
+const redStrip=el("div","",pagesEl,"position:absolute;background:#E0000C;z-index:0;");
+function render2(n,fr){
+  const [bl,br]=bbAt(n); const L=bl*K,R=br*K,C=spineAt(n)*K;
+  [L,(n>=693?540:C),R].forEach((x,k)=>{gV[k].setAttribute("x1",x);gV[k].setAttribute("x2",x);});
+  [[L,101],[R,101],[L,439],[R,439]].forEach(([x,y],k)=>{gD[k].setAttribute("x",x-6);gD[k].setAttribute("y",y*K-6);});
+  const hy=n>=693?[372,708]:[372,710];
+  [[L,hy[0]],[R,hy[0]],[L,hy[1]],[R,hy[1]]].forEach(([x,y],k)=>box(hd2[k],x,y));
+  const card=$("a6-card");
+  if(n>=693){pagesEl.style.display="none";card.style.display="";
+    card.style.transform="translate(360px,376px) skewY(-2.9deg) scale(1,0.995)";}
+  else{pagesEl.style.display="";card.style.display="none";
+    for(const P of PAGES)renderPage(P,n,fr);
+    box(redStrip,L,709,C-L,8);redStrip.style.display=n<=688?"":"none";}
+}
+
+/* ---------------- S3 : back to the opening seal (frames 695-704) ---------------- */
+const S3={695:[89,13,115,47.5],696:[87,18,118,47.5],697:[87,20,119,46.5],698:[87,20,120,47.5],699:[87,20,121,47.5],700:[87,20,121.5,48.5],701:[87,20,124,50.5],702:[86,20,141,54.5],703:[86,20,160,60],704:[86,20,178,66]};
+const f3=$("a6-f3");
+const cir=sv("circle",{cx:539,cy:539,r:230,fill:"none",stroke:"#6a6a66","stroke-opacity":0.8,"stroke-width":2.6},f3);
+const band=sv("path",{fill:"#C9C8C3","fill-rule":"evenodd"},f3);
+const bev=[0,1,2,3].map(()=>sv("line",{stroke:"rgba(0,0,0,.18)","stroke-width":1.6},f3));
+const hd3=[0,1,2,3].map(()=>el("div","a6-hd",$("a6-hd3"),""));
+function render3(n){
+  const v=S3[Math.min(704,n)]; const h=v[0]*K,bw=v[1]*K,r=v[2]*K,rh=v[3]*K, c=539;
+  cir.setAttribute("r",r);
+  const o=[c-h,c+h], i=[c-h+bw,c+h-bw];
+  band.setAttribute("d",`M${o[0]},${o[0]}H${o[1]}V${o[1]}H${o[0]}Z M${i[0]},${i[0]}H${i[1]}V${i[1]}H${i[0]}Z`);
+  [[o[0],o[0],i[0],i[0]],[o[1],o[0],i[1],i[0]],[o[1],o[1],i[1],i[1]],[o[0],o[1],i[0],i[1]]].forEach((p,k)=>{bev[k].setAttribute("x1",p[0]);bev[k].setAttribute("y1",p[1]);bev[k].setAttribute("x2",p[2]);bev[k].setAttribute("y2",p[3]);});
+  [[o[0],o[0]],[o[1],o[0]],[o[0],o[1]],[o[1],o[1]]].forEach(([x,y],k)=>box(hd3[k],x,y));
+  const red=$("a6-red3"); box(red,c-rh,c-rh,2*rh,2*rh);
+  const g=$("a6-red3g"); const fs=rh*2*0.9; g.style.cssText+=`;left:${rh*0.04}px;width:${2*rh}px;font-size:${fs}px;line-height:${fs}px;top:${rh*2*0.04}px;`;
+}
+
+/* ---------------- master driver ---------------- */
+const scenes=[$("a6-s0"),$("a6-s1"),$("a6-s2"),$("a6-s3")];
+function render(f){
+  const n=Math.round(f), fr=0; /* nearest reference frame (snapshots sample at 30fps) */
+  const si=n<=651?0:n<=668?1:n<=694?2:3;
+  scenes.forEach((s,k)=>s.style.visibility=k===si?"visible":"hidden");
+  if(si===1)render1(n); else if(si===2)render2(n,0); else if(si===3)render3(n);
+}
+const P={_f:F0,get f(){return this._f;},set f(v){this._f=v;render(v);}};
+const tl=gsap.timeline({paused:true});
+tl.to(P,{f:F0+DUR*24,duration:DUR,ease:"none"},0);
+render(F0);
+tl.set({},{},DUR);
+window.__timelines["a6"]=tl;
+})();</script>
+</template></body></html>

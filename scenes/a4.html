@@ -1,0 +1,372 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
+<template>
+<style>
+@font-face{font-family:"a4Boku";src:url("fonts/YujiBoku-Regular.woff2") format("woff2");font-display:block;}
+@font-face{font-family:"a4Ship";src:url("fonts/ShipporiAntiqueB1-Regular.woff2") format("woff2");font-display:block;}
+#root{position:absolute;inset:0;overflow:hidden;}
+#a4-bg1,#a4-bg2{position:absolute;inset:0;background-image:url("assets/paper_light.png");background-size:cover;background-blend-mode:luminosity;}
+#a4-bg1{background-color:#EEF0E8;}
+#a4-bg2{background-color:#E7E7E6;display:none;}
+#a4-frames{position:absolute;inset:0;}
+.a4-fr{position:absolute;inset:0;display:none;overflow:hidden;}
+.a4-t{position:absolute;box-sizing:border-box;overflow:hidden;
+  background-image:radial-gradient(ellipse at 28% 22%,rgba(255,250,235,.20),rgba(255,255,255,0) 55%),radial-gradient(ellipse at 78% 82%,rgba(70,40,15,.16),rgba(0,0,0,0) 60%),url("assets/paper_light.png");
+  background-size:100% 100%,100% 100%,cover;background-blend-mode:normal,normal,multiply;
+  box-shadow:inset 0 0 0 1px rgba(60,40,20,.12);}
+.a4-g{position:absolute;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  font-family:"a4Boku","a4Ship",serif;line-height:1;white-space:nowrap;}
+.a4-cmp{display:inline-flex;align-items:center;}
+.a4-cmp i{font-style:normal;display:inline-block;text-align:center;}
+.a4-circ{position:absolute;border-radius:50%;box-sizing:border-box;}
+.a4-svg{position:absolute;left:0;top:0;width:1080px;height:1080px;overflow:visible;}
+.a4-rect{position:absolute;box-sizing:border-box;}
+.a4-board{position:absolute;left:540px;top:540px;width:0;height:0;}
+.a4-stage{position:absolute;inset:0;perspective:1600px;}
+.a4-plane{position:absolute;inset:0;transform-style:preserve-3d;}
+</style>
+<div id="root" data-composition-id="a4" data-width="1080" data-height="1080">
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="a4-b1" x="-10%" y="-10%" width="120%" height="120%"><feMorphology operator="dilate" radius="0.6"/></filter>
+    <filter id="a4-b2" x="-10%" y="-10%" width="120%" height="120%"><feMorphology operator="dilate" radius="1.8" result="d"/><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="d" in2="n" scale="3"/></filter>
+    <filter id="a4-b3" x="-10%" y="-10%" width="120%" height="120%"><feMorphology operator="dilate" radius="3.2" result="d"/><feTurbulence type="fractalNoise" baseFrequency="0.45" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="d" in2="n" scale="5"/></filter>
+    <filter id="a4-b4" x="-10%" y="-10%" width="120%" height="120%"><feMorphology operator="dilate" radius="5.2" result="d"/><feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="d" in2="n" scale="7"/></filter>
+    <filter id="a4-b5" x="-10%" y="-10%" width="120%" height="120%"><feMorphology operator="dilate" radius="7.5" result="d"/><feTurbulence type="fractalNoise" baseFrequency="0.2" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="d" in2="n" scale="10"/></filter>
+  </svg>
+  <div id="a4-bg1"></div>
+  <div id="a4-bg2"></div>
+  <div id="a4-frames"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>
+(function(){
+const DUR=6.5, F0=361, F1=516;
+const host=document.getElementById("a4-frames");
+const tl=gsap.timeline({paused:true});
+
+/* ---------------- styles ---------------- */
+const ST={ // tile bg, glyph colour
+  tn:["#C9AA80","#1C231C"], tl:["#CDB592","#1C231C"], rb:["#B98F74","#1E221C"], br:["#B07C52","#161A15"],
+  yl:["#CEC19E","#1C231C"], pl:["#DAD9CF","#3A7254"], py:["#D4C9A5","#3A664B"], tn2:["#C29C73","#1A1F19"],
+  bl:["#2D5A97","#D9D6EA"]
+};
+const GST={"嘢":"rb","歴":"yl","賣":"tl","專":"tl","無":"pl","雙":"pl","十":"br","舊":"pl","禾":"pl","正":"pl",
+  "餘":"tn","六":"br","養":"pl","滋":"pl","年":"tn","米":"pl","靚":"tn2","神":"pl","史":"py","酒":"pl","嘉":"pl"};
+function filt(fs){ if(fs<34) return ""; if(fs<80) return "url(#a4-b1)"; if(fs<150) return "url(#a4-b2)"; if(fs<250) return "url(#a4-b3)"; if(fs<380) return "url(#a4-b4)"; return "url(#a4-b5)"; }
+function glyph(ch,fs,col,extra){
+  let inner=ch;
+  if(ch==="嘢"){ inner='<span class="a4-cmp"><i style="width:.3em;transform:scale(.42,.5) translateY(-.2em)">口</i><i style="width:.72em;transform:scaleX(.76)">野</i></span>'; }
+  return '<div class="a4-g" style="font-size:'+fs.toFixed(1)+'px;color:'+col+';filter:'+filt(fs)+';'+(extra||"")+'">'+inner+'</div>';
+}
+// generic glyph tile: cx,cy centre, w,h size, rot deg, glyph, style key
+function tile(cx,cy,w,h,g,sk,rot,o){
+  o=o||{}; sk=sk||GST[g]||"tn"; const s=ST[sk];
+  const m=Math.min(w,h); const fs=m*(o.gs||0.8);
+  let st='left:'+(cx-w/2).toFixed(1)+'px;top:'+(cy-h/2).toFixed(1)+'px;width:'+w.toFixed(1)+'px;height:'+h.toFixed(1)+'px;background-color:'+(o.bg||s[0])+';';
+  if(rot) st+='transform:rotate('+rot.toFixed(2)+'deg);';
+  if(o.z) st+='z-index:'+o.z+';';
+  return '<div class="a4-t" style="'+st+'">'+(g?glyph(g,fs,o.col||s[1]):"")+'</div>';
+}
+function rect(x0,y0,x1,y1,bg,extra){ return '<div class="a4-rect" style="left:'+x0.toFixed(1)+'px;top:'+y0.toFixed(1)+'px;width:'+(x1-x0).toFixed(1)+'px;height:'+(y1-y0).toFixed(1)+'px;background:'+bg+';'+(extra||"")+'"></div>'; }
+// svg helpers
+function rh(x,y,r){ r=r||7.5; return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+r+'" fill="#fff" stroke="#D0121A" stroke-width="3.2"/>'; }
+function bh(x,y){ return '<rect x="'+(x-4.5).toFixed(1)+'" y="'+(y-4.5).toFixed(1)+'" width="9" height="9" fill="#141414"/>'; }
+function poly(pts,stroke,sw,close,extra){ return '<'+(close===false?'polyline':'polygon')+' points="'+pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'" fill="none" stroke="'+stroke+'" stroke-width="'+sw+'" '+(extra||"")+'/>'; }
+function line(a,b,stroke,sw){ return '<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>'; }
+function svg(inner){ return '<svg class="a4-svg" viewBox="0 0 1080 1080" style="z-index:50">'+inner+'</svg>'; }
+function hull(P){ P=P.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]); const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);
+  const lo=[],up=[]; for(const p of P){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p);}
+  for(let i=P.length-1;i>=0;i--){const p=P[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p);}
+  up.pop();lo.pop();return lo.concat(up);}
+const lerp=(a,b,u)=>a+(b-a)*u;
+function interpKeys(K,f){ // K: {frame: obj} with numeric arrays; returns lerped copy when structure matches
+  const ks=Object.keys(K).map(Number).sort((a,b)=>a-b);
+  if(K[f]) return K[f];
+  let a=ks[0],b=ks[ks.length-1]; for(const k of ks){ if(k<=f) a=k; if(k>=f){b=k;break;} }
+  const A=K[a],B=K[b]; if(a===b) return A;
+  const u=(f-a)/(b-a);
+  const same=JSON.stringify(A,(k,v)=>typeof v==="number"?0:v)===JSON.stringify(B,(k,v)=>typeof v==="number"?0:v);
+  if(!same) return A;
+  const rec=(x,y)=>Array.isArray(x)?x.map((v,i)=>rec(v,y[i])):(typeof x==="number"?lerp(x,y,u):(x&&typeof x==="object"?Object.fromEntries(Object.keys(x).map(k=>[k,rec(x[k],y[k])])):x));
+  return rec(A,B);
+}
+
+/* ================= S1: ring of tiles (361-380) ================= */
+const RS={"恒":"#E2D8C6","民":"#D3D2DD","安":"#DAD7D0","富":"#D0D5DC","長":"#D9D8D3","平":"#D2D2D0","建":"#CDD3DC","泰":"#D0D6DE","興":"#CED4DC","芳":"R","宏":"R","學":"R"};
+const S1={
+361:{D:226,t:[["恒",377,393],["民",325,600],["安",565,317],["芳",738,433],["宏",738,640]]},
+362:{D:238,t:[["恒",330,455],["民",362,678],["安",508,319],["芳",716,400],["宏",748,622]]},
+363:{D:250,t:[["建",315,508],["平",409,724],["富",468,320],["長",702,378],["學",757,605]]},
+364:{D:256,t:[["恒",340,422],["平",396,721],["安",628,326],["學",764,594]]},
+365:{D:250,t:[["恒",326,447],["平",426,741],["安",608,316],["學",765,583]]},
+366:{D:254,t:[["建",316,470],["平",454,756],["安",590,312],["學",770,573]]},
+367:{D:268,t:[["富",461,319],["平",377,705],["學",771,563]]},
+368:{D:268,t:[["恒",449,323],["泰",391,719],["芳",775,556]]},
+369:{D:268,t:[["恒",438,328],["泰",402,729],["芳",774,549]]},
+370:{D:268,t:[["恒",430,332],["泰",411,738],["芳",775,543]]},
+371:{D:270,t:[["泰",305,539],["芳",775,539]]},
+372:{D:270,t:[["泰",304,541],["芳",774,537]]}
+};
+const PAIR={373:[235,-2.3,272],374:[235,-3.7,268],375:[232,-5,264],376:[232,-7.5,260],377:[225,-10.2,250],378:[218,-14.6,234],379:[206,-21.5,208],380:[172,-56,150]};
+for(const f in PAIR){ const [d,a,D]=PAIR[f]; const r=a*Math.PI/180; S1[f]={D:D,t:[["興",540-d*Math.cos(r),540-d*Math.sin(r)],["長",540+d*Math.cos(r),540+d*Math.sin(r)]]}; }
+function ringTile(g,cx,cy,s){
+  const red=RS[g]==="R"; const bg=red?"#CF442B":RS[g];
+  const fs=s*0.84; const cd=s*0.9;
+  let h='<div class="a4-t" style="left:'+(cx-s/2).toFixed(1)+'px;top:'+(cy-s/2).toFixed(1)+'px;width:'+s+'px;height:'+s+'px;background-color:'+bg+';box-shadow:inset 0 0 0 1.5px rgba(40,40,50,.28)">';
+  h+=glyph(g,fs,"#131313");
+  if(!red) h+=glyph(g,fs,"#1C6CAB","clip-path:circle("+(cd/2-2)+"px at 50% 50%)");
+  h+='<div class="a4-circ" style="left:'+((s-cd)/2)+'px;top:'+((s-cd)/2)+'px;width:'+cd+'px;height:'+cd+'px;border:5px solid #D11818"></div>';
+  return h+'</div>';
+}
+function buildS1(f){
+  const d=S1[f]; const s=208; let h="";
+  const P=[];
+  for(const [g,x,y] of d.t){ h+=ringTile(g,x,y,s); P.push([x-s/2,y-s/2],[x+s/2,y-s/2],[x-s/2,y+s/2],[x+s/2,y+s/2]); }
+  h+='<div class="a4-circ" style="left:'+(540-d.D/2)+'px;top:'+(540-d.D/2)+'px;width:'+d.D+'px;height:'+d.D+'px;border:6px solid #D11818;z-index:40"></div>';
+  const H=hull(P); let sv=poly(H,"#222",1.5); for(const p of H) sv+=rh(p[0],p[1]);
+  return h+svg(sv);
+}
+
+/* ================= S2: vertical stacks (381-408) ================= */
+// tiles: [glyph, cy, w, h]  (cx=540); bb:[x0,y0,x1,y1]; gh: ghost rect
+const S2={
+381:{t:[["嘢",410,270,262],["歴",671,270,262]],bb:[400,278,680,802]},
+382:{t:[["嘢",390,260,260],["賣",538,10,10],["歴",688,260,258]],bb:[380,260,700,816]},
+385:{t:[["嘢",380,260,260],["賣",538,14,14],["歴",698,260,264]],bb:[370,224,710,856]},
+388:{t:[["嘢",375,260,262],["賣",538,18,18],["歴",704,260,260]],bb:[366,210,714,868]},
+390:{t:[["嘢",374,260,260],["賣",539,24,24],["歴",704,260,260]],bb:[366,206,714,872]},
+393:{t:[["嘢",374,260,260],["賣",540,44,44],["歴",706,260,260]],bb:[366,200,714,880]},
+394:{t:[["嘢",354,240,228],["賣",538,60,60],["歴",712,240,240]],bb:[368,192,712,882]},
+395:{t:[["嘢",351,190,190],["無",496,80,80],["雙",586,80,80],["歴",727,190,190]],bb:[368,186,710,892]},
+396:{t:[["賣",312,206,204],["無",472,106,104],["雙",606,106,104],["專",766,206,204]],bb:[374,168,702,910]},
+397:{t:[["賣",295,210,210],["無",465,108,106],["十",539,28,38],["雙",611,108,106],["專",783,210,210]],bb:[390,130,690,950],gh:[370,100,710,972]},
+398:{t:[["賣",285,212,210],["無",459,110,110],["十",538,48,48],["雙",619,110,110],["專",794,212,212]],bb:[384,120,696,960],gh:[356,80,724,992]},
+400:{t:[["賣",272,212,216],["無",453,112,114],["十",540,48,48],["雙",627,112,114],["專",806,214,216]],bb:[380,110,698,970],gh:[336,64,744,1010]},
+402:{t:[["賣",268,216,216],["無",451,114,114],["十",540,48,48],["雙",629,114,114],["專",810,220,220]],bb:[380,104,700,972],gh:[330,52,750,1020]},
+404:{t:[["賣",268,216,216],["無",451,114,114],["十",540,48,48],["雙",629,114,114],["專",810,220,220]],bb:[380,104,700,974],gh:[325,45,755,1025]},
+406:{t:[["賣",283,222,222],["無",454,112,100],["十",540,40,40],["雙",627,112,106],["專",799,222,222]],bb:[376,108,700,970],gh:[320,40,756,1030]},
+407:{t:[["無",459,110,110],["雙",614,110,110],["賣",302,226,228],["專",778,228,228]],bb:[378,124,700,954],gh:[316,70,760,1010]},
+408:{t:[["無",540,40,40],["賣",372,240,240],["專",705,242,242]],bb:[376,192,700,886],gh:[320,130,760,950]}
+};
+function buildS2(f){
+  const d=interpKeys(S2,f); let h="";
+  for(const [g,cy,w,hh] of d.t) h+=tile(540,cy,w,hh,g,null,0,{gs:0.8});
+  const [x0,y0,x1,y1]=d.bb; let sv="";
+  if(d.gh){ const [a,b,c,e]=d.gh; sv+=poly([[a,b],[c,b],[c,e],[a,e]],"rgba(120,120,120,.28)",3); }
+  sv+=poly([[x0,y0],[x1,y0],[x1,y1],[x0,y1]],"#3d3d3d",1.4);
+  const mx=(x0+x1)/2,my=(y0+y1)/2; sv+=bh(mx,y0)+bh(mx,y1)+bh(x0,my)+bh(x1,my);
+  sv+=rh(x0,y0)+rh(x1,y0)+rh(x0,y1)+rh(x1,y1);
+  return h+svg(sv);
+}
+
+/* ================= S3: cross / plus (409-431) ================= */
+// A arm size, Ra arm centre distance, c centre block, r inner radius, si inner size, phi ring rot, sq red square size
+const S3={
+409:{A:236,Ra:204,c:172,r:43,si:36,phi:0,sq:12},
+410:{A:236,Ra:223,c:210,r:64,si:56,phi:0,sq:20},
+411:{A:236,Ra:227,c:218,r:72,si:64,phi:0,sq:22},
+412:{A:236,Ra:229,c:222,r:74,si:66,phi:0,sq:22},
+416:{A:236,Ra:233,c:230,r:76,si:68,phi:0,sq:22},
+423:{A:236,Ra:237,c:238,r:79,si:70,phi:0,sq:22},
+424:{A:232,Ra:235,c:238,r:79,si:70,phi:0,sq:22},
+425:{A:218,Ra:225,c:232,r:77,si:70,phi:8,sq:22},
+426:{A:206,Ra:217,c:228,r:75,si:72,phi:28,sq:22},
+427:{A:196,Ra:219,c:200,r:79,si:78,phi:45,sq:22},
+428:{A:186,Ra:224,c:170,r:94,si:92,phi:45,sq:22},
+429:{A:173,Ra:230,c:120,r:106,si:104,phi:45,sq:20},
+430:{A:156,Ra:248,c:0,r:118,si:124,phi:45,sq:0},
+431:{A:120,Ra:280,c:0,r:176,si:186,phi:45,sq:0}
+};
+function buildS3(f){
+  const d=interpKeys(S3,f); const late=f>=423;
+  const arms=late?["十","養","滋","年"]:["專","舊","禾","嘢"]; // top,left,right,bottom
+  const inn=late?["舊","嘢","六","米"]:["無","餘","六","正"];
+  let h=""; const {A,Ra,c,r,si,phi,sq}=d;
+  const ac=[[540,540-Ra],[540-Ra,540],[540+Ra,540],[540,540+Ra]];
+  for(let i=0;i<4;i++) h+=tile(ac[i][0],ac[i][1],A,A,arms[i],null,0,{gs:0.8});
+  if(c>1) h+=rect(540-c/2,540-c/2,540+c/2,540+c/2,"#F4F4F2","z-index:5");
+  const ang=[-90,180,0,90]; const p=phi*Math.PI/180;
+  for(let i=0;i<4;i++){ const a=ang[i]*Math.PI/180+p; h+=tile(540+r*Math.cos(a),540+r*Math.sin(a),si,si,inn[i],null,phi,{gs:0.8,z:6}); }
+  let sv="";
+  if(sq>0) sv+='<rect x="'+(540-sq/2)+'" y="'+(540-sq/2)+'" width="'+sq+'" height="'+sq+'" fill="#F7F7F5" stroke="#D0121A" stroke-width="2"/>';
+  const e=Ra+A/2, w=A/2;
+  const oc=[[540-w,540-e],[540+w,540-e],[540+e,540-w],[540+e,540+w],[540+w,540+e],[540-w,540+e],[540-e,540+w],[540-e,540-w]];
+  if(f<=430){ sv+=poly(oc,"#8a8a8a",1.2); for(const q of oc) sv+=rh(q[0],q[1]); }
+  else sv+=poly(oc,"rgba(170,170,170,.8)",2.5);
+  return h+svg(sv);
+}
+
+/* ================= S4: rotated diagonal board (432-441) ================= */
+// C cell, ai inner size, th rotation, g:[A.TL,A.BR,B.TL,B.BR], mini:[left,right] m size, off:[dx,dy]
+const S4={
+432:{C:226,ai:0,th:-45,g:["專",null,null,"舊"],mini:["嘢","史"],m:151},
+433:{C:354,ai:40,th:-45,g:["專","嘢","米","舊"],mini:["嘢","史"],m:150},
+434:{C:382,ai:108,th:-45,g:["賣","六","舊","雙"],mini:["嘢","史"],m:150},
+435:{C:396,ai:160,th:-45,g:["年","六","養","米"]},
+436:{C:418,ai:205,th:-45,g:["年","六","養","米"]},
+437:{C:438,ai:240,th:-45,g:["年","六","養","米"]},
+438:{C:453,ai:262,th:-45,g:["六","餘","餘","六"]},
+439:{C:480,ai:283,th:-44,g:["六","餘","餘","六"],rx:6},
+440:{C:505,ai:307,th:-41,g:["六","餘","餘","六"],rx:10,ry:-6},
+441:{C:480,ai:315,th:-30,g:["六","餘","餘","六"],rx:8,ry:-6,off:[-45,-55],fill:"餘"}
+};
+function buildS4(f){
+  const d=S4[f]; const {C,ai,th}=d; const ao=C-ai; let b="";
+  const G=d.g; const pale="#DCDCDA";
+  // pale sub-cells
+  if(ai>0){
+    const pc=[[-ai,-C,0,-ai],[-C,-ai,-ai,0],[ai,0,C,ai],[0,ai,ai,C]]; // A.TR, A.BL, B.TR, B.BL  [x0,y0,x1,y1]
+    for(const q of pc){ if(d.fill){ const w=q[2]-q[0],hh=q[3]-q[1]; b+=tile((q[0]+q[2])/2,(q[1]+q[3])/2,w,hh,d.fill,"pl",0,{gs:0.8}); } else b+=rect(q[0],q[1],q[2],q[3],pale); }
+    b+=tile(-C+ao/2,-C+ao/2,ao,ao,G[0],null,0,{gs:0.8});
+    b+=tile(-ai/2,-ai/2,ai,ai,G[1],null,0,{gs:0.8});
+    b+=tile(ai/2,ai/2,ai,ai,G[2],null,0,{gs:0.8});
+    b+=tile(ao/2+ai,ao/2+ai,ao,ao,G[3],null,0,{gs:0.8});
+  } else {
+    b+=tile(-C/2,-C/2,C,C,G[0],null,0,{gs:0.8});
+    b+=tile(C/2,C/2,C,C,G[3],null,0,{gs:0.8});
+  }
+  if(d.mini){ const m=d.m; b+=tile(-C-m/2,-C-m/2,m,m,d.mini[0],null,0,{gs:0.8}); b+=tile(C+m/2,C+m/2,m,m,d.mini[1],null,0,{gs:0.8}); }
+  const hx=[[-C,-C],[0,-C],[C,0],[C,C],[0,C],[-C,0]];
+  b+='<svg class="a4-svg" viewBox="0 0 1080 1080" style="left:-540px;top:-540px;z-index:20">'+poly(hx.map(p=>[p[0]+540,p[1]+540]),"rgba(150,150,150,.9)",2.4)+'</svg>';
+  const off=d.off||[0,0];
+  const tr='translate('+off[0]+'px,'+off[1]+'px) rotateX('+(d.rx||0)+'deg) rotateY('+(d.ry||0)+'deg) rotate('+th+'deg)';
+  return '<div class="a4-stage"><div class="a4-plane"><div class="a4-board" style="transform:'+tr+'">'+b+'</div></div></div>';
+}
+
+/* ================= S5: 4x4 checker grid zoom (442-491) ================= */
+const TT={442:18,443:30,444:45,445:57,446:68,447:79,448:89,449:99,450:108,451:116,452:124,453:133,454:143,455:156,456:176,457:202,458:248,459:48,460:144,461:176,462:193,463:204,464:212,465:218,466:224,467:228,468:231,469:234,470:238,471:251,472:32,473:122,474:140,475:150,476:157,477:162,478:165,479:168,480:169,481:170,482:171,483:170,484:168,485:165,486:160,487:151,488:140,489:121,490:92,491:309};
+function bigT(f,t){ if(f===442) return 350; if(f===443) return 338; if(f===444) return 322; if(f===459) return 294; if(f===472) return 326;
+  if(f>=473&&f<=489) return 306; if(f===490) return 316; if(f===491) return 120; return 333-0.65*t; }
+function s5glyphs(f){
+  if(f<=445) return [["六","養"],["嘢","史"],["餘","滋"],["嘢","史"]];
+  if(f<=447) return [["餘","滋"],["嘢","史"],["嘢","史"],["靚","神"]];
+  if(f<=453) return [["餘","滋"],["靚","神"],["嘢","史"],["靚","神"]];
+  if(f<=455) return [["嘢","史"],["靚","神"],["靚","神"],["專","酒"]];
+  if(f<=457) return [["嘢","史"],["專","酒"],["靚","神"],["專","酒"]];
+  if(f===458) return [["靚","神"],["賣","雙"],["專","酒"],["靚","神"]];
+  if(f===459) return [["靚","神"],["六","養"],["嘢","史"],["餘","滋"]];
+  if(f===460) return [["專","酒"],["餘","滋"],["靚","神"],["嘢","史"]];
+  if(f<=470) return [["賣","雙"],["嘢","史"],["專","酒"],["靚","神"]];
+  if(f===471) return [["年","米"],["靚","神"],["賣","雙"],["專","酒"]];
+  if(f===472) return [["年","米"],["靚","神"],["年","米"],["賣","雙"]];
+  if(f<=476) return [["靚","神"],["賣","雙"],["年","米"],["賣","雙"]];
+  if(f<=486) return [["靚","神"],["年","米"],["專","酒"],["靚","神"]];
+  if(f<=489) return [["靚","神"],["賣","雙"],["年","米"],["專","酒"]];
+  if(f===490) return [["年","米"],["專","酒"],["年","米"],["專","酒"]];
+  return [["十","舊"],["專","酒"],["年","米"],["專","酒"]];
+}
+const TILT={442:[26,[-8,0,-3,-5]],443:[21,[-3,0,-1,-3]],444:[13,[-1,0,0,-1]]};
+function buildS5(f){
+  const t=TT[f], T=bigT(f,t); const S=2*T+2*t; const c=540;
+  const [big,cen,mini,tiny]=s5glyphs(f);
+  const x=[c-t-T,c-t,c,c+t,c+t+T]; // grid lines
+  let b="";
+  const grey="#DADAD8";
+  // grey edge cells (r+c odd): (1,2),(2,1),(3,4),(4,3)  columns: 0:[x0,x1],1:[x1,x2],2:[x2,x3],3:[x3,x4]
+  const cell=(ci,ri)=>rect(x[ci],x[ri],x[ci+1],x[ri+1],grey);
+  b+=cell(1,0)+cell(0,1)+cell(3,2)+cell(2,3);
+  const rot=TILT[f]?TILT[f][1]:[0,0,0,0];
+  // big corner tiles
+  b+=tile(x[0]+T/2,x[0]+T/2,T,T,big[0],null,rot[0]);
+  b+=tile(x[3]+T/2,x[0]+T/2,T,T,big[1],null,rot[1]);
+  b+=tile(x[0]+T/2,x[3]+T/2,T,T,big[1],null,rot[2]);
+  b+=tile(x[3]+T/2,x[3]+T/2,T,T,big[0],null,rot[3]);
+  // centre 2x2
+  b+=tile(c-t/2,c-t/2,t,t,cen[0]); b+=tile(c+t/2,c-t/2,t,t,cen[1]); b+=tile(c-t/2,c+t/2,t,t,cen[1]); b+=tile(c+t/2,c+t/2,t,t,cen[0]);
+  // minis touching block corners diagonally
+  const c0=c-S/2; const m=0.62*c0; const m2=0.62*(c0-m);
+  const lo=c0, hi=1080-c0;
+  b+=tile(lo-m/2,lo-m/2,m,m,mini[0])+tile(hi+m/2,lo-m/2,m,m,mini[1])+tile(lo-m/2,hi+m/2,m,m,mini[1])+tile(hi+m/2,hi+m/2,m,m,mini[0]);
+  const lo2=lo-m, hi2=hi+m;
+  b+=tile(lo2-m2/2,lo2-m2/2,m2,m2,tiny[0])+tile(hi2+m2/2,lo2-m2/2,m2,m2,tiny[1])+tile(lo2-m2/2,hi2+m2/2,m2,m2,tiny[1])+tile(hi2+m2/2,hi2+m2/2,m2,m2,tiny[0]);
+  let sv=poly([[x[0],x[0]],[x[4],x[0]],[x[4],x[4]],[x[0],x[4]]],"rgba(150,150,150,.85)",1.4);
+  sv+=bh(c,x[0])+bh(c,x[4])+bh(x[0],c)+bh(x[4],c);
+  sv+=rh(c-t,c-t)+rh(c+t,c-t)+rh(c-t,c+t)+rh(c+t,c+t);
+  b+=svg(sv);
+  if(TILT[f]) return '<div style="position:absolute;inset:0;transform-origin:540px 540px;transform:scaleY('+Math.cos(TILT[f][0]*Math.PI/180).toFixed(3)+')">'+b+'</div>';
+  return b;
+}
+
+/* ================= S6: zoomed 3x3 quad (492-516) ================= */
+const W6={492:571,493:321,494:281,495:260,496:250,497:244,498:240,499:246,500:252,501:276,502:290,503:264,504:250,505:242,506:236,507:228,508:225,509:217,510:212,511:199,512:188,513:165,514:130,515:64};
+const P6={492:[72,73],493:[80,172],494:[83,196],495:[91,211],496:[107,221],497:[166,229],498:[200,236],499:[221,239],500:[230,241],501:[239,240],502:[244,239],503:[248,245],504:[248,262],505:[251,268],506:[252,261],507:[252,258],508:[252,255],509:[252,254],510:[252,254],511:[252,254],512:[255,257],513:[263,263],514:[274,274],515:[296,296]};
+const BH6={492:388,493:320,494:300,495:296,496:290,497:282,498:280,499:280,500:280,501:280,502:280};
+const SK6={497:-3.5,498:-6,499:-8.5,500:-13,501:-18,502:-24};
+function s6glyphs(f){ // [L,R,centre,TL,TR,BL,BR]
+  if(f<=496) return ["雙","酒","餘","靚","六","六","靚"];
+  if(f<=500) return ["雙","酒","餘","靚","餘","餘","賣"];
+  if(f<=502) return ["靚","賣","餘","無","嘢","嘢","嘉"];
+  if(f===503) return ["專","十","餘","正","米","舊","無"];
+  if(f<=512) return ["專","十","嘢","正","米","舊","無"];
+  if(f===513) return ["年","嘢","嘢","雙","滋","史","神"];
+  return ["年","嘢","年","雙","滋","史","神"];
+}
+function buildS6(f){
+  if(f===516) return buildEnd();
+  const w=W6[f]; const xL=540-w/2, xR=540+w/2; const y0=325,y1=755; const B=430;
+  const [gl,gr,gc,g1,g2,g3,g4]=s6glyphs(f);
+  const [p,q]=P6[f];
+  let h="";
+  // minis (size 256) above/below band
+  const ms=256;
+  h+=tile(p-ms/2,y0-4-ms/2,ms,ms,g1)+tile(1080-q+ms/2,y0-4-ms/2,ms,ms,g2)+tile(q-ms/2,y1+4+ms/2,ms,ms,g3)+tile(1080-p+ms/2,y1+4+ms/2,ms,ms,g4);
+  // tiny corner tiles
+  const tz=52; h+=tile(6+tz/2,6+tz/2,tz,tz,g4)+tile(1074-tz/2,6+tz/2,tz,tz,g3)+tile(6+tz/2,1074-tz/2,tz,tz,g2)+tile(1074-tz/2,1074-tz/2,tz,tz,g1);
+  // band group
+  let band="";
+  const sk=SK6[f]||0; const ky=Math.tan(sk*Math.PI/180);
+  band+=rect(xL,y0,xR,y1,"#F3F3F1");
+  const bw=Math.min(w,388), bhh=BH6[f]||bw;
+  band+=tile(540,540,bw,bhh,gc,"bl",0,{gs:0.78});
+  const OFF6={501:[-40,55],502:[-15,70]}[f];
+  if(OFF6){ band+=tile(xL-B/2,540,B,B,"雙")+tile(xR+B/2,540,B,B,"酒");
+    band+=tile(xL-B/2,540+OFF6[0],B,B*0.92,gl)+tile(xR+B/2,540+OFF6[1],B,B*0.92,gr); }
+  else band+=tile(xL-B/2,540,B,B,gl)+tile(xR+B/2,540,B,B,gr);
+  h+='<div style="position:absolute;inset:0">'+band+'</div>';
+  const inn=[[xL,y0],[xR,y0+w*ky],[xR,y1+w*ky*(f>=502?-1.2:1)],[xL,y1]];
+  let sv=line(inn[0],inn[1],"#161616",1.6)+line(inn[3],inn[2],"#161616",1.6);
+  for(const pt of inn) sv+=rh(pt[0],pt[1]);
+  // outer quad + connectors
+  const o=[[p,72],[1080-q,72],[1080-p,1006],[q,1006]];
+  sv+=line(o[0],o[1],"#1a1a1a",1.4)+line(o[3],o[2],"#1a1a1a",1.4);
+  for(let i=0;i<4;i++) sv+=line(inn[i],o[i],"rgba(120,120,120,.55)",1.3);
+  for(const pt of o) sv+=rh(pt[0],pt[1]);
+  h+=svg(sv);
+  // dark edges creeping in (transition to a5)
+  const dk={513:24,514:28,515:44}[f];
+  if(dk){ h+=rect(0,0,dk,1080,"#1B1D20","z-index:60")+rect(1080-dk,0,1080,1080,"#1B1D20","z-index:60");
+    if(f===515){ h+=rect(0,y0,xL-B,y1,"#1B1D20","z-index:60")+rect(xR+B,y0,1080,y1,"#1B1D20","z-index:60"); } }
+  return h;
+}
+function buildEnd(){
+  let h=rect(0,0,1080,1080,"#1B1D20");
+  h+=rect(48,0,1040,324,'#E7E7E6 url("assets/paper_light.png") center/cover')+rect(48,756,1040,1080,'#E7E7E6 url("assets/paper_light.png") center/cover');
+  h+=tile(30,30,52,52,"年")+tile(1050,30,52,52,"年")+tile(30,1050,52,52,"年")+tile(1050,1050,52,52,"年");
+  h+=tile(203,192,236,256,"雙")+tile(880,192,240,256,"滋")+tile(203,888,236,256,"史")+tile(880,888,240,256,"神");
+  h+=rect(330,324,756,754,"#8D8D8C");
+  h+='<div class="a4-t" style="left:330px;top:324px;width:426px;height:430px;background:transparent;box-shadow:none">'+glyph("心",170,"#F2F2F2")+'</div>';
+  return h;
+}
+
+/* ================= assemble flipbook ================= */
+function build(f){
+  if(f<=380) return buildS1(f);
+  if(f<=408) return buildS2(f);
+  if(f<=431) return buildS3(f);
+  if(f<=441) return buildS4(f);
+  if(f<=491) return buildS5(f);
+  return buildS6(f);
+}
+const EPS=0.004;
+for(let f=F0; f<=F1; f++){
+  const i=f-F0; const el=document.createElement("div"); el.className="a4-fr"; if(i===0) el.style.display="block"; el.innerHTML=build(f); host.appendChild(el);
+  const t0=i===0?0:(i-0.75)/24, t1=(i+0.25)/24; /* robust to 0..half-frame seek lag */
+  tl.set(el,{display:"block"},t0);
+  if(f<F1) tl.set(el,{display:"none"},t1);
+}
+tl.set("#a4-bg1",{display:"none"},19.25/24);
+tl.set("#a4-bg2",{display:"block"},19.25/24);
+tl.set({},{},DUR);
+window.__timelines["a4"]=tl;
+})();
+</script>
+</template></body></html>

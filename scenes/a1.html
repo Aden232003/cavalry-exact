@@ -1,0 +1,344 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
+<template>
+<style>
+@font-face{font-family:"YujiBoku";src:url("fonts/YujiBoku-Regular.woff2") format("woff2");font-display:block;}
+@font-face{font-family:"YujiMai";src:url("fonts/YujiMai-Regular.woff2") format("woff2");font-display:block;}
+@font-face{font-family:"YujiSyuku";src:url("fonts/YujiSyuku-Regular.woff2") format("woff2");font-display:block;}
+@font-face{font-family:"ZenAntique";src:url("fonts/ZenAntique-Regular.woff2") format("woff2");font-display:block;}
+#root{position:absolute;inset:0;overflow:hidden;background:#e0e0e0;}
+#a1-bg{position:absolute;inset:0;background:#e0e0e0 url("assets/paper_light.png") center/cover;filter:grayscale(1) brightness(.962);}
+#a1-dim{position:absolute;inset:0;background:#000;opacity:0;}
+#a1-dark{position:absolute;inset:0;background:#1a1f22 url("assets/paper_dark.png") center/cover;display:none;}
+.a1-l{position:absolute;left:0;top:0;width:1080px;height:1080px;overflow:visible;}
+.a1-t{position:absolute;box-sizing:border-box;display:none;overflow:visible;}
+.a1-t span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:"YujiBoku";line-height:1;white-space:nowrap;}
+#a1-seal{position:absolute;display:none;background:#cf2605;box-shadow:0 0 0 2px rgba(236,172,160,.9),inset 0 0 0 4px #b52a10,inset 0 0 0 11px #cf2605,inset 0 0 0 15px #9a1600,inset 0 0 30px rgba(120,20,0,.25);}
+#a1-seal span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:"YujiBoku";line-height:1;color:#050505;}
+#a1-dro{position:absolute;left:0;top:0;width:1080px;height:1080px;display:none;overflow:hidden;}
+.a1-lv{position:absolute;left:0;top:0;overflow:hidden;box-sizing:border-box;}
+.a1-lv span{position:absolute;left:50%;top:50%;line-height:1;white-space:nowrap;}
+#a1-pre{position:absolute;left:-2000px;top:0;opacity:0;font-size:20px;}
+</style>
+<div id="root" data-composition-id="a1" data-width="1080" data-height="1080">
+  <div id="a1-bg"></div>
+  <div id="a1-dim"></div>
+  <div id="a1-dark"></div>
+  <svg id="a1-under" class="a1-l" viewBox="0 0 540 540" width="1080" height="1080"></svg>
+  <div id="a1-seal"><span>永</span></div>
+  <div id="a1-tiles" class="a1-l"></div>
+  <div id="a1-dro"></div>
+  <svg id="a1-over" class="a1-l" viewBox="0 0 540 540" width="1080" height="1080"></svg>
+  <div id="a1-pre"><span style="font-family:YujiBoku">永道念</span><span style="font-family:YujiMai">念</span><span style="font-family:YujiSyuku">念</span><span style="font-family:ZenAntique">紀留</span></div>
+  <svg width="0" height="0" style="position:absolute">
+    <defs id="a1-defs"></defs>
+  </svg>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>(function(){
+const DUR=4.833;
+const $=id=>document.getElementById(id);
+const under=$('a1-under'),over=$('a1-over'),tilesEl=$('a1-tiles'),seal=$('a1-seal'),dro=$('a1-dro');
+/* ---------- brush filters (dilate + roughen), radius in px ---------- */
+const FR=[1,1.5,2,3,4,5,6,8,10];
+(function(){let s='';FR.forEach((r,i)=>{s+='<filter id="a1-f'+i+'" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">'+
+ '<feMorphology operator="dilate" radius="'+r+'" in="SourceGraphic" result="d"/>'+
+ '<feGaussianBlur in="d" stdDeviation="'+(r*0.55).toFixed(2)+'" result="b"/>'+
+ '<feComponentTransfer in="b" result="t"><feFuncA type="linear" slope="4" intercept="-1.6"/></feComponentTransfer>'+
+ '<feTurbulence type="fractalNoise" baseFrequency="'+(1/(r*6)).toFixed(4)+'" numOctaves="2" seed="'+(3+i)+'" result="n"/>'+
+ '<feDisplacementMap in="t" in2="n" scale="'+(r*1.1).toFixed(1)+'" xChannelSelector="R" yChannelSelector="G"/></filter>';});
+ $('a1-defs').innerHTML=s;})();
+function fid(fs){const want=fs*0.017;let bi=0,bd=1e9;FR.forEach((r,i)=>{const d=Math.abs(r-want);if(d<bd){bd=d;bi=i;}});return 'url(#a1-f'+bi+')';}
+/* ---------- helpers ---------- */
+function K(a,u){if(u<=a[0][0])return a[0][1];for(let i=1;i<a.length;i++){if(u<=a[i][0]){const p=a[i-1],q=a[i],k=(u-p[0])/(q[0]-p[0]);if(Array.isArray(p[1]))return p[1].map((v,j)=>v+(q[1][j]-v)*k);return p[1]+(q[1]-p[1])*k;}}return a[a.length-1][1];}
+function STEP(tab,F){let r=null;for(const k in tab){if(+k<=F)r=tab[k];}return r;}
+function rng(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+const POOL='司家宮化道和天土福齋經格存長實月西廣扇闇堂寶被萬玄私贊有金可能無藏風祠外琵德壓闕穿星麿嵐蔽里';
+function hull(pts){pts=pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);if(pts.length<3)return pts;const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];for(const p of pts){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p);}for(let i=pts.length-1;i>=0;i--){const p=pts[i];while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p);}up.pop();lo.pop();return lo.concat(up);}
+const f2=v=>(+v).toFixed(2);
+const BLUE='#239cf5',RED='#ff2009',GREY='#d4d4d4',RGLY='#ff2430',INK='#0a0a0a',HBLUE='#2a8be0';
+/* ---------- tile pool ---------- */
+const pool=[];for(let i=0;i<48;i++){const d=document.createElement('div');d.className='a1-t';const s=document.createElement('span');d.appendChild(s);tilesEl.appendChild(d);pool.push(d);}
+function setTiles(list){let i=0;for(;i<list.length&&i<pool.length;i++){const it=list[i],d=pool[i],s=d.firstChild;const w=it[3],h=it[4];
+ d.style.display='block';d.style.mixBlendMode='multiply';d.style.left=f2(it[1]*2)+'px';d.style.top=f2(it[2]*2)+'px';d.style.width=f2(w*2)+'px';d.style.height=f2(h*2)+'px';
+ const ty=it[0];let fs,col=INK;
+ if(ty==='r'){d.style.background='transparent';col=RGLY;fs=Math.max(w,h)*2*(it[6]||1.0);}
+ else if(ty==='o'){d.style.background='transparent';fs=Math.min(w,h)*2*(it[6]||0.8);}
+ else{d.style.background=ty==='R'?RED:ty==='G'?GREY:BLUE;fs=Math.min(w,h)*2*(it[6]||0.82);}
+ s.textContent=it[5]||'';s.style.fontSize=f2(fs)+'px';s.style.color=col;s.style.filter=fid(fs);s.style.opacity=it[7]==null?1:it[7];}
+ for(;i<pool.length;i++)pool[i].style.display='none';}
+/* ---------- svg snippets ---------- */
+const L=(x1,y1,x2,y2,c,w)=>'<line x1="'+f2(x1)+'" y1="'+f2(y1)+'" x2="'+f2(x2)+'" y2="'+f2(y2)+'" stroke="'+c+'" stroke-width="'+w+'"/>';
+const RC=(x,y,w,h,st,fill,rx)=>'<rect x="'+f2(x)+'" y="'+f2(y)+'" width="'+f2(Math.max(0,w))+'" height="'+f2(Math.max(0,h))+'" rx="'+f2(rx||0)+'" fill="'+(fill||'none')+'"'+(st?' stroke="'+st[0]+'" stroke-width="'+st[1]+'"':'')+'/>';
+const DOT=(x,y,c,r)=>'<circle cx="'+f2(x)+'" cy="'+f2(y)+'" r="'+(r||3.4)+'" fill="'+c+'"/>';
+const SQ=(x,y,c,s)=>{s=s||7;return '<rect x="'+f2(x-s/2)+'" y="'+f2(y-s/2)+'" width="'+s+'" height="'+s+'" fill="'+c+'"/>';};
+function bracket(cx,cy,dx,dy,h,v,t){/* corner at cx,cy; arms go in dx (horizontal) and dy (vertical) directions */t=t||5.5;let s='';
+ if(h>0)s+=RC(dx>0?cx:cx-h,dy>0?cy:cy-t,h,t,null,'#0b0b0b');
+ if(v>0)s+=RC(dx>0?cx:cx-t,dy>0?cy:cy-v,t,v,null,'#0b0b0b');return s;}
+function hullSvg(boxes,lineCol,startBlue,extra){const pts=[];boxes.forEach(b=>{pts.push([b[0],b[1]],[b[0]+b[2],b[1]],[b[0]+b[2],b[1]+b[3]],[b[0],b[1]+b[3]]);});
+ const hp=hull(pts);if(hp.length<2)return['',''];
+ /* start from top-left-most vertex */let si=0,best=1e9;hp.forEach((p,i)=>{const v=p[0]+p[1];if(v<best){best=v;si=i;}});
+ let d='M';hp.forEach((p,i)=>{d+=(i?' L':'')+f2(p[0])+' '+f2(p[1]);});d+=' Z';
+ const line='<path d="'+d+'" fill="none" stroke="'+lineCol+'" stroke-width="0.75"/>';
+ let dots='';for(let j=0;j<hp.length;j++){const p=hp[(si+j)%hp.length];dots+=DOT(p[0],p[1],((j%2===0)===startBlue)?HBLUE:'#111');}
+ return[line,dots];}
+
+/* ======================= S1: seal 永 + guide morph (F1-22) ======================= */
+function S1(u){
+ const h=K([[1,104],[2,111.5],[3,113.5],[4,115.5],[6,118],[8,120],[16,121],[20,119],[21,118],[22,115]],u);
+ const c0=270-h,c1=270+h;
+ const g=K([[1,1],[2,30],[3,43],[4,51],[5,57],[6,62],[7,65],[8,68],[10,80],[12,92],[14,98],[16,103],[19,105],[20,107],[21,112],[22,126]],u);
+ const s=K([[1,90],[2,93],[3,95],[4,95],[5,110]],u);
+ const phi=K([[16,0],[17,1.5],[18,2.2],[19,3.2],[20,5],[21,10],[22,35]],u)*Math.PI/180;
+ const o=K([[5,0],[6,6],[8,18],[12,23],[16,27],[17,30],[18,32],[19,35],[20,42],[21,50],[22,82]],u);
+ const rr=K([[16,0],[17,8],[18,20],[19,35],[20,55],[21,85],[22,197]],u);
+ const GL='rgba(38,38,38,.62)',GW=0.9;let sv='';
+ if(u<4.5){ /* separate cells */
+  const X=[[c0-g-s,c0-g],[c0,c1],[c1+g,c1+g+s]];
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++){if(i===1&&j===1)continue;const isSide=(i===1||j===1);if(isSide&&u<1.5)continue;
+   let x0=X[i][0],x1=X[i][1],y0=X[j][0],y1=X[j][1];if(isSide){if(i===1){y0+=j===0?8:0;y1-=j===2?8:0;}else{x0+=i===0?8:0;x1-=i===2?8:0;}}
+   sv+=RC(x0,y0,x1-x0,y1-y0,[GL,GW]);}
+ } else { /* full-frame guide grid */
+  [c0-g,c0,c1,c1+g].forEach(v=>{sv+=L(v,-5,v,545,GL,GW)+L(-5,v,545,v,GL,GW);});
+ }
+ /* ring */
+ const rh=h+o;if(u>=5.5){sv+=RC(270-rh,270-rh,2*rh,2*rh,['rgba(60,60,60,.38)',0.9],null,Math.min(rr,rh));}
+ /* diagonals: ring attach point -> outer intersection; attach slides CCW around the ring */
+ const rot=K([[17,0],[18,-3],[19,-7],[20,-14],[21,-24],[22,-42]],u)*Math.PI/180;
+ const cr=Math.min(rr,rh);
+ function ringPt(ang){/* point on rounded square (half rh, radius cr) in direction ang (screen radians) */
+  const dx=Math.cos(ang),dy=Math.sin(ang);let lo=0,hi=rh*2;for(let it=0;it<30;it++){const m=(lo+hi)/2;const px=Math.abs(dx*m),py=Math.abs(dy*m);
+   const qx=Math.max(px-(rh-cr),0),qy=Math.max(py-(rh-cr),0);const inside=(px<=rh&&py<=rh)&&(qx*qx+qy*qy<=cr*cr+1e-9||qx===0||qy===0);if(inside)lo=m;else hi=m;}return[270+dx*lo,270+dy*lo];}
+ [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx,sy])=>{const base=Math.atan2(sy,sx);const p=u>=5.5?ringPt(base+rot):[270+sx*h,270+sy*h];
+  sv+=L(p[0],p[1],270+sx*(h+g),270+sy*(h+g),GL,GW);});
+ /* grey square */
+ sv+=RC(c0,c0,2*h,2*h,u>15?['rgba(0,0,0,.4)',0.7]:null,'#c9c9c9');
+ under.innerHTML=sv;
+ /* seal */
+ const card=K([[1,164],[2,174],[3,175],[8,183],[12,185],[16,184],[18,182],[19,180],[20,176],[21,172],[22,143]],u);
+ seal.style.display='block';seal.style.left=f2((270-card/2)*2)+'px';seal.style.top=f2((271.5-card/2)*2)+'px';seal.style.width=seal.style.height=f2(card*2)+'px';
+ const sp=seal.firstChild;const fs=card*2*0.84;sp.style.fontSize=f2(fs)+'px';sp.style.filter=fid(fs*1.1);
+ /* handles: inscribed rotated square */
+ const Lh=2*h,a=Lh*Math.sin(phi)/(Math.sin(phi)+Math.cos(phi));
+ let ov='';[[c0+a,c0],[c1,c0+a],[c1-a,c1],[c0,c1-a]].forEach(p=>{ov+=SQ(p[0],p[1],'#0b0b0b',7);});
+ over.innerHTML=ov;setTiles([]);
+}
+
+/* ======================= S2: two diagonal tiles (F23-43) ======================= */
+const S2T={
+23:[['R',208,208,124,124,'道'],['o',208,208,124,124,'琶',0.8,0.85]],
+24:[['G',247,208,124,124,'琵'],['R',169,208,124,124,'道']],
+25:[['G',262,207,124,125,'琵'],['R',156,207,123,124,'道']],
+26:[['G',265,210,125,125,'忝'],['R',151,206,123,123,'道']],
+27:[['G',268,213,124,125,'忝'],['R',149,203,123,123,'道']],
+28:[['G',268,222,124,125,'扇'],['R',148,194,124,123,'月']],
+29:[['G',268,247,124,123,'扇'],['R',148,170,124,123,'月']],
+30:[['G',270,253,123,125,'扇'],['R',148,162,124,124,'月']],
+31:[['G',270,258,123,124,'扇'],['R',148,158,124,124,'月']],
+32:[['G',270,261,123,124,'扇'],['R',148,155,124,123,'月']],
+33:[['G',270,263,123,125,'扇'],['R',148,153,124,123,'月']],
+34:[['G',268,266,124,124,'長'],['R',148,151,124,123,'金']],
+35:[['G',268,267,124,124,'長'],['R',148,150,124,123,'金']],
+36:[['G',268,268,124,124,'長'],['R',148,149,123,122,'金']],
+37:[['G',266,266,126,126,'長'],['R',150,148,120,120,'金']],
+38:[['G',258,262,128,130,'忝'],['R',155,148,117,117,'金']],
+39:[['G',245,260,131,133,'里'],['R',163,148,112,112,'月']],
+40:[['G',230,258,136,136,'萬'],['R',176,147,104,104,'月']],
+41:[['G',202,253,145,145,'萬'],['R',196,145,93,92,'外']],
+42:[['G',143,225,112,110,'萬'],['B',235,237,160,160,'被'],['R',245,143,62,62,'外']],
+43:[['G',177,147,98,98,'萬'],['R',254,230,123,123,'外'],['B',160,317,77,76,'被']]};
+function S2(u,F){
+ const sp=K([[23,107],[24,112],[25,116.5],[26,119],[27,122],[40,122],[41,126],[42,128],[43,132]],u);
+ let sv='';const GL='rgba(30,30,30,.6)';
+ for(let k=-3;k<=3;k++){const v=270+k*sp;sv+=L(v,0,v,540,GL,0.9)+L(0,v,540,v,GL,0.9);}
+ /* fine ticks between grid lines */
+ for(let k=-6;k<=6;k++){if(k%2===0)continue;const v=270+k*sp/2;for(let m=-3;m<=3;m++){const w=270+m*sp;sv+=L(v,w-1.2,v,w+1.2,GL,0.5)+L(w-1.2,v,w+1.2,v,GL,0.5);}}
+ const GG='rgba(50,50,50,.45)';
+ const big=K([[23,[213,213]],[24,[228,175]],[25,[233,150]],[26,[236,140]],[27,[238,130]],[40,[240,130]],[41,[252,70]],[42,[258,55]],[43,[264,0]]],u);
+ sv+=RC(270-big[0],270-big[0],2*big[0],2*big[0],[GG,0.9],null,big[1]);
+ if(F>=43)sv+=RC(270-254,270-254,508,508,[GG,0.7]);
+ if(F>=28&&F<=42){const inn=K([[28,[130,130]],[29,[160,160]],[30,[165,165]],[34,[172,172]],[36,[178,178]],[38,[185,185]],[40,[190,190]],[41,[200,90]],[42,[213,70]]],u);
+  sv+=RC(270-inn[0],270-inn[0],2*inn[0],2*inn[0],[GG,0.8],null,inn[1]);}
+ const tl=S2T[F]||S2T[43];
+ const boxes=tl.filter(t=>t[0]!=='o').map(t=>[t[1],t[2],t[3],t[4]]);
+ let hs;
+ if(boxes.length===2){const A=boxes[1],B=boxes[0];const P=[[A[0],A[1]],[A[0]+A[2],A[1]],[B[0]+B[2],B[1]],[B[0]+B[2],B[1]+B[3]],[B[0],B[1]+B[3]],[A[0],A[1]+A[3]]];
+  let d='M'+P.map(p=>f2(p[0])+' '+f2(p[1])).join(' L')+' Z';let dots='';P.forEach((p,j)=>{dots+=DOT(p[0],p[1],j%2?'#111':HBLUE);});
+  hs=['<path d="'+d+'" fill="none" stroke="#1a1a1a" stroke-width="0.8"/>',dots];}
+ else hs=hullSvg(boxes,'#1a1a1a',true);
+ under.innerHTML=sv;
+ setTiles(tl.map(t=>t));
+ /* brackets */
+ const bk=K([[23,[363,158,176,381,28,0]],[24,[390,150,150,390,30,0]],[25,[392,148,148,392,27,7]],[27,[394,146,146,394,22,14]],[39,[394,146,146,394,22,14]],[40,[400,140,140,400,14,22]],[41,[400,140,140,400,7,25]],[42,[400,137,138,403,7,33]],[43,[405,147,135,390,7,33]]],u);
+ let ov=hs[0]+hs[1];
+ ov+=bracket(bk[0],bk[1],-1,1,bk[4],bk[5])+bracket(bk[2],bk[3],1,-1,bk[4],bk[5]);
+ over.innerHTML=ov;
+}
+
+/* ======================= S3/S4: chain + fan in grey frame (F44-89) ======================= */
+const S3T={
+44:[['b',275,212,22,18,'化'],['r',204,305,12,22,''],['R',300,123,82,80,'宮'],['R',146,342,72,72,'司'],['B',207,225,103,103,'能']],
+45:[['B',198,315,21,21,'宮'],['B',297,183,22,20,'化'],['B',142,337,78,80,'能'],['B',315,112,78,76,'可'],['R',225,200,108,108,'宮']],
+46:[['R',280,205,24,24,'道'],['B',256,240,19,17,'祠'],['B',126,362,74,74,'廣'],['B',305,104,97,97,'可'],['R',178,258,116,114,'宮']],
+47:[['R',333,95,68,68,'風'],['B',261,234,18,20,'祠'],['R',237,267,18,18,'包'],['B',129,375,63,63,'廣'],['B',292,108,110,112,'可'],['R',147,297,119,119,'祠']],
+48:[['R',334,92,68,68,'風'],['B',213,296,23,23,'祠'],['R',240,262,20,21,'包'],['B',352,152,20,18,'和'],['B',270,122,126,126,'宮'],['R',131,322,115,115,'祠']],
+49:[['B',216,293,22,23,'祠'],['R',242,259,20,21,'包'],['B',343,166,22,18,'和'],['R',336,88,70,70,'風'],['B',261,133,130,130,'宮'],['R',123,336,111,111,'祠']],
+50:[['B',217,291,22,22,'薬'],['R',243,257,20,20,'包'],['B',336,177,22,18,'和'],['R',336,85,74,74,'風'],['B',252,137,134,134,'宮'],['R',119,338,110,110,'西']],
+51:[['B',217,289,23,22,'薬'],['R',182,333,18,16,'外'],['B',322,130,14,15,'和'],['R',335,82,77,78,'風'],['B',244,152,136,136,'琵'],['R',117,352,103,103,'西']],
+52:[['B',218,288,20,20,'薬'],['R',180,330,20,20,'外'],['B',323,128,12,24,''],['R',334,81,80,80,'可'],['B',237,165,133,135,'琵'],['R',116,357,99,99,'西']],
+53:[['R',180,327,20,20,'外'],['B',200,300,18,18,'薬'],['B',324,123,12,40,''],['R',333,80,84,85,'可'],['B',222,185,138,138,'琵'],['R',115,362,96,96,'無']],
+54:[['R',298,165,25,25,'家'],['B',288,277,23,28,'司'],['R',186,322,22,24,'薬'],['B',252,284,20,22,'藏'],['R',330,81,90,91,'可'],['B',207,208,139,141,'西'],['R',116,368,89,89,'無']],
+55:[['R',300,158,22,26,'家'],['B',272,200,24,23,'司'],['B',267,313,21,27,'藏'],['B',231,322,18,22,'和'],['B',150,353,17,19,'月'],['R',317,86,105,104,'可'],['B',187,247,135,135,'西'],['R',118,372,80,80,'無']]};
+/* fan big items: [type,x,y,w,h,glyph] */
+const S4T={
+56:[['r',355,84,44,41,'家'],['B',292,108,120,120,'藏'],['B',128,348,100,100,'壓'],['r',208,240,126,140,'外']],
+57:[['B',315,88,95,95,'西'],['B',133,322,60,60,'西'],['B',175,295,120,120,'藏'],['r',120,345,70,75,'夲'],['r',300,165,108,112,'無']],
+58:[['B',310,90,50,50,'扇'],['r',335,96,72,72,'闕'],['B',292,160,118,118,'西'],['B',140,352,89,89,'藏'],['r',215,282,105,108,'無']],
+59:[['B',312,84,50,50,'扇'],['r',328,119,85,100,'闕'],['B',264,220,121,121,'西'],['B',132,357,70,70,'經'],['r',195,330,90,95,'無']],
+60:[['B',325,90,60,60,'扇'],['r',320,144,92,108,'闕'],['B',240,258,120,120,'廣'],['B',125,345,68,68,'經'],['r',165,350,80,90,'穿']],
+61:[['B',333,90,65,65,'扇'],['r',319,183,80,95,'司'],['B',221,286,116,116,'廣'],['B',120,345,66,66,'經'],['r',158,350,66,90,'穿']],
+62:[['B',330,112,82,82,'可'],['r',309,197,80,106,'司'],['B',206,305,112,112,'廣'],['B',120,344,62,62,'甄'],['r',150,353,60,88,'穿']],
+63:[['B',290,102,33,38,'闕'],['B',328,112,86,86,'可'],['r',298,216,83,109,'司'],['B',193,319,108,108,'廣'],['B',120,339,56,56,'甄'],['r',138,362,56,70,'格']],
+64:[['B',290,100,33,36,'闕'],['B',327,120,90,90,'可'],['r',277,232,110,110,'忝'],['B',184,329,103,103,'被'],['B',120,336,52,56,'甄'],['r',134,361,52,67,'格']],
+65:[['B',292,98,34,36,'闕'],['B',322,140,97,97,'能'],['r',275,248,102,110,'忝'],['B',175,337,100,98,'被'],['B',120,332,50,54,'甄'],['r',131,360,46,63,'格']],
+66:[['B',307,100,35,33,'齋'],['B',320,147,100,100,'能'],['r',265,263,103,109,'忝'],['B',168,343,97,97,'被'],['B',120,328,54,54,'金'],['r',131,375,37,42,'月']],
+67:[['B',298,94,52,56,'齋'],['r',349,107,43,51,'土'],['B',316,157,105,105,'能'],['r',255,274,104,110,'忝'],['B',165,345,95,95,'闇'],['B',120,325,50,52,'金'],['r',129,370,33,44,'月']],
+68:[['B',293,93,60,59,'齋'],['r',348,109,50,58,'土'],['B',313,167,107,107,'徳'],['r',246,280,100,123,'實'],['B',163,350,88,88,'闇'],['B',121,312,46,50,'金']],
+69:[['B',295,92,56,56,'齋'],['r',322,108,89,68,'被'],['B',309,176,110,110,'徳'],['r',239,289,99,123,'實'],['B',150,345,90,90,'闇'],['B',121,310,45,45,'實']],
+70:[['B',297,91,65,63,'可'],['r',323,111,92,75,'被'],['B',305,185,111,112,'徳'],['r',231,291,98,128,'實'],['B',149,354,85,86,'藏'],['B',122,307,42,46,'實']],
+71:[['B',300,91,67,65,'可'],['r',324,115,94,80,'被'],['B',301,195,113,113,'徳'],['r',211,304,118,115,'福'],['B',145,356,83,83,'藏'],['B',122,305,42,46,'實']],
+72:[['B',302,90,70,67,'可'],['r',340,125,71,81,'星'],['B',295,206,115,115,'齋'],['r',222,317,98,108,'福'],['B',141,356,81,81,'藏'],['B',123,303,42,46,'無']],
+73:[['B',304,90,70,70,'堂'],['r',338,131,76,86,'星'],['B',289,217,116,116,'齋'],['r',216,325,93,106,'福'],['B',138,357,80,80,'藏'],['B',124,300,40,46,'無']],
+74:[['B',307,90,74,73,'堂'],['r',341,137,75,80,'星'],['B',282,229,117,117,'齋'],['r',209,337,84,98,'可'],['B',135,355,75,75,'闇'],['B',125,298,39,45,'無']],
+75:[['B',315,95,72,70,'堂'],['r',339,144,79,83,'星'],['B',273,241,118,118,'經'],['r',204,343,76,95,'可'],['B',132,352,72,74,'闇'],['B',126,295,38,44,'無']],
+76:[['B',321,100,71,70,'格'],['r',325,148,103,96,'福'],['B',264,254,118,118,'經'],['r',199,349,65,92,'可'],['B',120,358,66,66,'闇'],['B',127,292,37,44,'天']],
+77:[['B',330,102,68,70,'格'],['r',322,158,106,98,'福'],['B',254,266,118,118,'經'],['r',194,353,60,89,'可'],['B',118,352,72,72,'格'],['B',128,289,36,42,'天']],
+78:[['B',327,105,70,68,'格'],['r',316,169,111,102,'福'],['B',243,279,117,117,'金'],['r',187,349,69,96,'長'],['B',119,351,64,64,'格'],['B',129,286,35,42,'天']],
+79:[['B',327,108,80,80,'格'],['r',319,187,107,98,'道'],['B',232,292,116,116,'金'],['r',165,352,78,92,'長'],['B',118,348,66,66,'格'],['B',119,290,40,33,'寶']],
+80:[['B',327,112,85,83,'有'],['r',312,196,111,105,'道'],['B',220,305,113,113,'金'],['r',157,345,83,98,'長'],['B',120,345,60,67,'長']],
+81:[['r',330,96,40,40,'琵'],['B',330,117,87,90,'有'],['r',303,206,113,113,'道'],['B',207,317,111,111,'金'],['r',139,356,69,84,'存'],['B',116,343,55,60,'長']],
+82:[['r',332,96,36,36,'琵'],['B',327,127,90,92,'有'],['r',282,210,120,135,'贊'],['B',195,328,107,107,'扇'],['r',134,356,61,80,'存'],['B',116,339,50,55,'長']],
+83:[['r',338,96,34,40,'琵'],['B',327,136,98,98,'私'],['r',274,233,121,136,'贊'],['B',182,338,104,104,'扇'],['r',129,357,54,74,'存'],['B',116,334,50,59,'長']],
+84:[['B',300,97,45,48,'蔽'],['r',346,102,43,48,'玄'],['B',322,147,100,103,'私'],['r',259,253,121,136,'贊'],['B',166,344,100,100,'扇'],['r',133,369,37,51,'萬'],['B',116,330,52,55,'麿']],
+85:[['B',302,98,42,42,'蔽'],['r',344,107,52,61,'玄'],['B',315,167,108,108,'私'],['r',240,270,120,135,'贊'],['B',158,350,88,88,'土'],['r',130,368,29,44,'萬'],['B',118,324,48,53,'麿']],
+86:[['B',307,98,40,45,'蔽'],['r',347,115,56,75,'玄'],['B',304,189,111,111,'萬'],['r',230,304,94,104,'玄'],['B',149,354,86,85,'土'],['r',128,360,24,42,'萬'],['B',125,322,40,48,'麿']],
+87:[['B',313,100,40,42,'蔽'],['r',326,132,84,84,'經'],['B',287,217,112,113,'萬'],['r',212,322,85,97,'玄'],['B',141,354,78,78,'土'],['B',123,301,43,47,'麿']],
+88:[['B',318,108,65,65,'寶'],['r',318,156,89,90,'經'],['B',261,251,111,111,'萬'],['r',204,336,63,88,'玄'],['B',132,345,70,72,'嵐']],
+89:[['B',312,142,74,75,'寶'],['r',300,225,105,105,'經'],['B',217,294,94,94,'萬'],['B',138,322,72,75,'闕'],['r',172,352,60,68,'閥']]};
+function frameBox(u){
+ const fr=K([[44,[102,82,438,458,52,59,52,58]],[45,[93,75,445,462,36,40,34,38]],[50,[90,70,448,472,32,38,31,37]],[55,[87,66,452,476,34,38,34,38]],[56,[85,65,455,475,45,43,45,45]],[84,[85,65,455,475,45,43,45,45]],[88,[83,62,457,478,46,45,45,55]],[89,[80,80,460,460,38,35,30,35]]],u);
+ const rad=K([[84,0],[85,25],[86,40],[87,55],[88,80],[89,155]],u);
+ return {o:fr.slice(0,4),i:[fr[0]+fr[4],fr[1]+fr[5],fr[2]-fr[6],fr[3]-fr[7]],rad};}
+function S34(u,F){
+ const fb=frameBox(u);const [x0,y0,x1,y1]=fb.o;const [ix0,iy0,ix1,iy1]=fb.i;
+ let sv='';const BGL='rgba(40,40,40,.42)';
+ [x0-12,x1+12,x1+4].forEach(v=>{sv+=L(v,0,v,540,BGL,0.8);});[y0-14,y1+14].forEach(v=>{sv+=L(0,v,540,v,BGL,0.8);});
+ sv+=RC(x0,y0,x1-x0,y1-y0,null,'#c6c6c6');
+ sv+=RC(ix0,iy0,ix1-ix0,iy1-iy0,null,'#e3e3e3',Math.min(fb.rad,(ix1-ix0)/2));
+ let items=[],ov='',hullBoxes=[];
+ if(F<=55){
+  items=(S3T[F]||S3T[55]).slice();
+  items.forEach(t=>{hullBoxes.push([t[1],t[2],t[3],t[4]]);});
+  /* tiny tiles under the big ones: tiny ones first in list already */
+  items=items.map(t=>{if(t[0]==='b')return['B',t[1],t[2],Math.max(t[3],t[4]),Math.max(t[3],t[4]),t[5]];if(t[0]==='r'&&t[3]<30)return['R',t[1],t[2],Math.max(t[3],t[4]),Math.max(t[3],t[4]),t[5]];if(t[0]==='R'||t[0]==='B')return t;return t;});
+  const hs=hullSvg(hullBoxes,'rgba(40,40,40,.55)',false);sv+=hs[0];ov+=hs[1];
+  const bk=K([[44,[100,143,441,400,6,24]],[45,[93,97,447,447,6,26]],[48,[90,78,450,470,8,18]],[51,[87,67,452,476,12,12]],[55,[87,66,452,476,12,12]]],u);
+  ov+=bracket(bk[0],bk[1],1,1,bk[4],bk[5])+bracket(bk[2],bk[3],-1,-1,bk[4],bk[5]);
+ } else {
+  /* ---- fan ---- */
+  const HX=266,HY=266,CX=403,CY=368,R=262;const n=15;
+  const m=K([[56,0],[57,0.55],[58,1]],u);
+  const ph=(u-56)*0.11;const pf=Math.floor(ph),pr=ph-pf;
+  const r2=rng(77);const glyphs=[];for(let i=0;i<80;i++)glyphs.push(POOL[Math.floor(r2()*POOL.length)]);
+  const arc=[];
+  for(let k=-1;k<=n;k++){const slot=k+pr;if(slot<0||slot>n-1)continue;const a=(176-slot*(66/(n-1)))*Math.PI/180;
+   const ax=CX+R*Math.cos(a),ay=CY-R*Math.sin(a);
+   const lf=slot/(n-1);const lx=150+(368-150)*lf,ly=392+(112-392)*lf;
+   const x=lx+(ax-lx)*m,y=ly+(ay-ly)*m;const id=k-pf+40;const blue=(id%2===0);
+   const sz=blue?25:22;
+   arc.push({x,y,blue,sz,g:glyphs[id%80]});}
+  const spA=K([[56,0.35],[57,1]],u);
+  let sp='';arc.forEach((a,i)=>{sp+=L(HX,HY,a.x,a.y,(i%2)?'rgba(235,25,35,'+spA+')':'rgba(10,10,10,'+spA+')',0.95);});
+  sv+=sp;
+  arc.forEach(a=>{if(a.blue)items.push(['B',a.x-a.sz/2,a.y-a.sz/2,a.sz,a.sz,a.g,0.82]);else items.push(['r',a.x-a.sz/2,a.y-a.sz/2,a.sz,a.sz,a.g,1.0]);});
+  const big=(S4T[F]||S4T[89]);big.forEach(t=>items.push(t));
+  const hb=[];big.forEach(t=>hb.push([t[1]-10,t[2]-10,t[3]+20,t[4]+20]));arc.forEach(a=>hb.push([a.x-a.sz/2-8,a.y-a.sz/2-8,a.sz+16,a.sz+16]));
+  const hs=hullSvg(hb,'none',false);ov+=hs[1];
+  const bk=K([[56,[85,65,455,475]],[84,[85,65,455,475]],[88,[83,62,457,478]],[89,[80,80,460,460]]],u);
+  ov+=bracket(bk[0],bk[1],1,1,12,12)+bracket(bk[2],bk[3],-1,-1,12,12);
+ }
+ under.innerHTML=sv;setTiles(items);over.innerHTML=ov;
+}
+
+/* ======================= S5/S6: Droste glyph stacks (F90-117) ======================= */
+const lvPool=[];for(let i=0;i<22;i++){const d=document.createElement('div');d.className='a1-lv';const s=document.createElement('span');d.appendChild(s);dro.appendChild(d);lvPool.push(d);}
+/* levels: array of {cx,cy,size,rot,bg,glyph,font,gs,col,gdx,gdy,grot} drawn in order (outer first) */
+function setLevels(lv){let i=0;for(;i<lv.length&&i<lvPool.length;i++){const l=lv[i],d=lvPool[i],s=d.firstChild;const W=(l.w||l.size)*2,H=(l.h||l.size)*2;
+ d.style.display='block';d.style.width=f2(W)+'px';d.style.height=f2(H)+'px';d.style.background=l.bg;d.style.boxShadow=l.sh||'none';
+ d.style.transform='translate('+f2(l.cx*2-W/2)+'px,'+f2(l.cy*2-H/2)+'px) rotate('+f2(l.rot)+'deg)';
+ s.textContent=l.glyph;s.style.fontFamily=l.font;const fs=l.gs*2;s.style.fontSize=f2(fs)+'px';s.style.color=l.col;
+ s.style.transform='translate(-50%,-50%) translate('+f2((l.gdx||0)*2)+'px,'+f2((l.gdy||0)*2)+'px) rotate('+f2(l.grot||0)+'deg) scaleX('+f2(l.gsx||1)+')';
+ s.style.filter=l.flt||'none';}
+ for(;i<lvPool.length;i++)lvPool[i].style.display='none';}
+function S5(u,F){
+ const sq=K([[90,[97,97,442,442]],[93,[103,103,437,437]],[97,[104,104,436,436]],[100,[103,103,437,437]],[101,[100,100,440,440]],[102,[88,88,450,450]]],u);
+ const cr=K([[90,150],[93,141],[97,140],[102,140]],u);
+ let sv=RC(sq[0],sq[1],sq[2]-sq[0],sq[3]-sq[1],null,'#a8a8a8')+'<circle cx="270" cy="270" r="'+f2(cr)+'" fill="#d8d8d8"/>';
+ under.innerHTML=sv;setTiles([]);
+ const card=K([[90,173],[93,177],[97,178],[99,177],[100,185],[101,196],[102,236]],u);
+ const crot=K([[90,-51],[92,-38],[93,-32],[94,-30],[96,-28],[97,-27],[98,-14],[99,-3.5],[100,-1],[101,0]],u);
+ const kk=K([[90,1.26],[97,1.26],[99,1.24]],u);
+ const lv=[];const MINT='#bcc3c1';
+ if(F<100){
+  for(let i=0;i<3;i++){const size=card/Math.pow(kk,i);const rot=i===0?crot:0;const gs=size*1.02;
+   lv.push({cx:270,cy:271,size,rot,bg:MINT,glyph:'念',font:'YujiSyuku',gs,col:'#1a1a1a',gdy:size*0.05,flt:'none',sh:'none'});}
+ } else { /* horizontal echo slices */
+  const kx=K([[100,1.12],[101,1.2],[102,1.28]],u);
+  for(let i=0;i<4;i++){const w=card/Math.pow(kx,i);const gs=card*1.02;
+   lv.push({cx:270,cy:271,size:card,w,h:card*(i===0?1:Math.pow(0.97,i)),rot:0,bg:MINT,glyph:'念',font:'YujiSyuku',gs,gsx:Math.pow(kx,-i)*1.15,col:'#1a1a1a',gdy:card*0.04,flt:fid(gs*2*0.5),sh:'none'});}
+ }
+ dro.style.display='block';setLevels(lv);
+ const ha=K([[90,116],[92,97],[93,95],[94,93],[96,90],[97,84],[98,41],[99,44],[100,45],[102,45]],u)*Math.PI/180;
+ const hr=K([[90,154],[93,143],[99,142],[101,140],[102,140]],u);
+ let ov='';for(let j=0;j<4;j++){const a=ha-j*Math.PI/2;ov+=DOT(270+hr*Math.cos(a),270-hr*Math.sin(a),j%2?'#111':HBLUE,3.6);}
+ over.innerHTML=ov;
+}
+function S6(u,F){
+ under.innerHTML='';setTiles([]);
+ const g=F<=107?'念':F<=114?'紀':'留';const font=F<=107?'YujiSyuku':'ZenAntique';
+ const s0=K([[103,120],[107,125],[108,95],[109,80],[113,62],[116,55],[117,52]],u);
+ const th0=K([[103,-15],[107,-18],[108,-8],[109,-5],[113,0],[117,0]],u);
+ const k=K([[103,1.14],[107,1.14],[108,1.135],[117,1.135]],u);
+ const dth=K([[103,-4.3],[107,-4.5],[108,-4],[113,-4],[117,-4.5]],u);
+ const N=Math.round(K([[103,8],[104,12],[105,16],[107,17],[108,20],[117,21]],u));
+ const gr=F<=107?1.0:0.95;const tw=-0.6;
+ const cx=K([[103,265],[106,262],[108,268],[109,270],[113,268],[117,272]],u),cy=K([[103,268],[106,265],[108,262],[109,262],[113,262],[117,268]],u);
+ const lv=[];
+ for(let i=N;i>=0;i--){const size=s0*Math.pow(k,i);const gs=size*gr;
+  lv.push({cx,cy,size,rot:th0+dth*i,bg:'#2e2b2d',glyph:g,font,gs,col:'#e2ddd4',gdy:gs*0.03,grot:(tw-dth)*i,
+   flt:fid(gs*2*0.55)+(i<5?'':' blur('+f2(Math.min(4,0.4*(i-4)))+'px)'),sh:i===N?'0 0 18px rgba(0,0,0,.5)':'0 0 3px rgba(0,0,0,.18)'});}
+ dro.style.display='block';setLevels(lv);
+ /* translucent lighter square overlay */
+ const os=K([[103,140],[107,150],[108,180],[109,209],[111,300],[113,520],[117,700]],u),orot=K([[103,-15],[107,-20],[109,-27],[113,-45],[117,-45]],u);
+ over.innerHTML='<rect x="'+f2(cx-os/2)+'" y="'+f2(cy-os/2)+'" width="'+f2(os)+'" height="'+f2(os)+'" fill="rgba(255,245,240,.1)" transform="rotate('+f2(orot)+' '+f2(cx)+' '+f2(cy)+')"/>';
+}
+
+/* ======================= master render ======================= */
+function render(t){
+ const u=t*24+1;const F=Math.max(1,Math.min(117,Math.round(u)));
+ const dark=F>=103;$('a1-dark').style.display=dark?'block':'none';
+ $('a1-dim').style.opacity=(F>=90&&F<=102)?0.055:0;
+ if(F<=22){dro.style.display='none';S1(u);}
+ else{seal.style.display='none';
+  if(F<=43){dro.style.display='none';S2(u,F);}
+  else if(F<=89){dro.style.display='none';S34(u,F);}
+  else if(F<=102){S5(u,F);}
+  else S6(u,F);}
+}
+const P={t:0};
+const tl=gsap.timeline({paused:true});
+tl.to(P,{t:DUR,duration:DUR,ease:'none',onUpdate:()=>render(P.t)},0);
+tl.set({},{},DUR);
+render(0);
+window.__timelines["a1"]=tl;
+})();</script>
+</template></body></html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=1080, height=1080">
+<title>Cavalry Exact</title>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>body{margin:0;background:#000;}#root{position:relative;width:100%;height:100%;overflow:hidden;background:#111;}.host{position:absolute;inset:0;}</style></head>
+<body>
+<div id="root" data-composition-id="main" data-width="1080" data-height="1080" data-duration="29.292">
+  <div id="a1" class="host" data-composition-id="a1" data-composition-src="scenes/a1.html" data-start="0.000" data-duration="4.833" data-track-index="1" data-width="1080" data-height="1080"></div>
+  <div id="a2" class="host" data-composition-id="a2" data-composition-src="scenes/a2.html" data-start="4.833" data-duration="5.667" data-track-index="2" data-width="1080" data-height="1080"></div>
+  <div id="a3" class="host" data-composition-id="a3" data-composition-src="scenes/a3.html" data-start="10.500" data-duration="4.500" data-track-index="3" data-width="1080" data-height="1080"></div>
+  <div id="a4" class="host" data-composition-id="a4" data-composition-src="scenes/a4.html" data-start="15.000" data-duration="6.500" data-track-index="4" data-width="1080" data-height="1080"></div>
+  <div id="a5" class="host" data-composition-id="a5" data-composition-src="scenes/a5.html" data-start="21.500" data-duration="5.583" data-track-index="5" data-width="1080" data-height="1080"></div>
+  <div id="a6" class="host" data-composition-id="a6" data-composition-src="scenes/a6.html" data-start="27.083" data-duration="2.209" data-track-index="6" data-width="1080" data-height="1080"></div>
+</div>
+<script>const tl=gsap.timeline({paused:true});
+tl.set("#a1",{opacity:0},0);tl.set("#a1",{opacity:1},0.0);tl.set("#a1",{opacity:0},4.833);
+tl.set("#a2",{opacity:0},0);tl.set("#a2",{opacity:1},4.833);tl.set("#a2",{opacity:0},10.5);
+tl.set("#a3",{opacity:0},0);tl.set("#a3",{opacity:1},10.5);tl.set("#a3",{opacity:0},15.0);
+tl.set("#a4",{opacity:0},0);tl.set("#a4",{opacity:1},15.0);tl.set("#a4",{opacity:0},21.5);
+tl.set("#a5",{opacity:0},0);tl.set("#a5",{opacity:1},21.5);tl.set("#a5",{opacity:0},27.083);
+tl.set("#a6",{opacity:0},0);tl.set("#a6",{opacity:1},27.083);
+tl.set({},{},29.292);window.__timelines["main"]=tl;</script>
+</body></html>

@@ -1,0 +1,56 @@
+{
+ "KaiseiDecol-Bold.woff2": {
+  "ps": "KaiseiDecol-Bold",
+  "family": "Kaisei Decol",
+  "full": "Kaisei Decol Bold",
+  "ttf": "KaiseiDecol-Bold.ttf"
+ },
+ "LiuJianMaoCao-Regular.woff2": {
+  "ps": "LiuJianMaoCao-Regular",
+  "family": "Liu Jian Mao Cao",
+  "full": "Liu Jian Mao Cao Regular",
+  "ttf": "LiuJianMaoCao-Regular.ttf"
+ },
+ "MaShanZheng-Regular.woff2": {
+  "ps": "MaShanZheng-Regular",
+  "family": "Ma Shan Zheng",
+  "full": "Ma Shan Zheng Regular",
+  "ttf": "MaShanZheng-Regular.ttf"
+ },
+ "ShipporiAntiqueB1-Regular.woff2": {
+  "ps": "ShipporiAntiqueB1-Regular",
+  "family": "Shippori Antique B1",
+  "full": "Shippori Antique B1 Regular",
+  "ttf": "ShipporiAntiqueB1-Regular.ttf"
+ },
+ "YujiBoku-Regular.woff2": {
+  "ps": "YujiBoku-Regular",
+  "family": "Yuji Boku",
+  "full": "Yuji Boku Regular",
+  "ttf": "YujiBoku-Regular.ttf"
+ },
+ "YujiMai-Regular.woff2": {
+  "ps": "YujiMai-Regular",
+  "family": "Yuji Mai",
+  "full": "Yuji Mai Regular",
+  "ttf": "YujiMai-Regular.ttf"
+ },
+ "YujiSyuku-Regular.woff2": {
+  "ps": "YujiSyuku-Regular",
+  "family": "Yuji Syuku",
+  "full": "Yuji Syuku Regular",
+  "ttf": "YujiSyuku-Regular.ttf"
+ },
+ "ZenAntique-Regular.woff2": {
+  "ps": "ZenAntique-Regular",
+  "family": "Zen Antique",
+  "full": "Zen Antique Regular",
+  "ttf": "ZenAntique-Regular.ttf"
+ },
+ "ZhiMangXing-Regular.woff2": {
+  "ps": "ZhiMangXing-Regular",
+  "family": "Zhi Mang Xing",
+  "full": "Zhi Mang Xing Regular",
+  "ttf": "ZhiMangXing-Regular.ttf"
+ }
+}
